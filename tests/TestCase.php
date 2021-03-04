@@ -1,7 +1,5 @@
 <?php
 
-namespace Tests\TestCase;
-
 declare(strict_types=1);
 
 use Illuminate\Foundation\Application;
