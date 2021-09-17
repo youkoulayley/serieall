@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Http\Requests;
@@ -6,8 +7,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Class SeasonCreateRequest
- * @package App\Http\Requests
+ * Class SeasonCreateRequest.
  */
 class SeasonCreateRequest extends FormRequest
 {
@@ -30,6 +30,7 @@ class SeasonCreateRequest extends FormRequest
     {
         return [
             'seasons.*.name' => 'required|numeric',
-            'seasons.*.ba' => 'max:255'];
+            'seasons.*.ba' => 'max:255',
+        ];
     }
 }

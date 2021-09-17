@@ -1,11 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Http\Requests;
 
 /**
- * Class ReplyContactRequest
- * @package App\Http\Requests
+ * Class ReplyContactRequest.
  */
 class ReplyContactRequest extends Request
 {
@@ -29,7 +29,7 @@ class ReplyContactRequest extends Request
         return [
             'admin_id' => 'required|numeric',
             'admin_message' => 'required',
-            'email' => 'required|email'
+            'email' => 'required|email',
         ];
     }
 }

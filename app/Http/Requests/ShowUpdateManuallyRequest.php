@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Http\Requests;
@@ -6,8 +7,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Class ShowUpdateManuallyRequest
- * @package App\Http\Requests
+ * Class ShowUpdateManuallyRequest.
  */
 class ShowUpdateManuallyRequest extends FormRequest
 {
@@ -29,7 +29,7 @@ class ShowUpdateManuallyRequest extends FormRequest
     public function rules()
     {
         return [
-            'thetvdb_id' => 'required|numeric|unique:shows,thetvdb_id,' . $this->get('id'),
+            'thetvdb_id' => 'required|numeric|unique:shows,thetvdb_id,'.$this->get('id'),
             'name_fr' => 'max:255',
             'creators' => ['regex:/^[A-Za-z0-9-éèàùç%+. ]{1,255}?(,[A-Za-z0-9-éèàùç%+. ]{1,255})*$/'],
             'nationalities' => ['regex:/^[A-Za-z0-9-éèàùç%+. ]{1,255}?(,[A-Za-z0-9-éèàùç%+. ]{1,255})*$/'],
@@ -39,6 +39,7 @@ class ShowUpdateManuallyRequest extends FormRequest
             'diffusion_fr' => 'date',
             'particularite' => 'max:255',
             'poster' => 'image|max:2000',
-            'taux_erectile' => 'numeric|between:0,100'];
+            'taux_erectile' => 'numeric|between:0,100',
+        ];
     }
 }

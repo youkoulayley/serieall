@@ -11,7 +11,7 @@ class elFinderEditor
      *
      * @var array
      */
-    protected $allowed = array();
+    protected $allowed = [];
 
     /**
      * Constructor.
@@ -50,15 +50,15 @@ class elFinderEditor
     }
 
     /**
-     * Return $this->args value of the key
+     * Return $this->args value of the key.
      *
-     * @param      string  $key    target key
-     * @param      string  $empty  empty value
+     * @param string $key   target key
+     * @param string $empty empty value
      *
-     * @return     mixed
+     * @return mixed
      */
     public function argValue($key, $empty = '')
     {
-        return isset($this->args[$key])? $this->args[$key] : $empty;
+        return isset($this->args[$key]) ? $this->args[$key] : $empty;
     }
 }

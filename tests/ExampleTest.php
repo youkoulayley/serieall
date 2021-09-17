@@ -1,9 +1,9 @@
 <?php
+
 declare(strict_types=1);
 
-
 /**
- * Class ExampleTest
+ * Class ExampleTest.
  */
 class ExampleTest extends TestCase
 {

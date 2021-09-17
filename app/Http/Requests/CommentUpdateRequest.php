@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Http\Requests;
@@ -6,8 +7,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Class CommentCreateRequest
- * @package App\Http\Requests
+ * Class CommentCreateRequest.
  */
 class CommentUpdateRequest extends FormRequest
 {
@@ -34,7 +34,7 @@ class CommentUpdateRequest extends FormRequest
             'show' => 'numeric',
             'season' => 'numeric',
             'episode' => 'numeric',
-            'article' => 'numeric'
+            'article' => 'numeric',
         ];
     }
 }

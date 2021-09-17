@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Config;
  */
 class SeasonRepository
 {
-    const RANKING_SEASONS_CACHE_KEY = 'RANKING_SEASONS_CACHE_KEY';
+    public const RANKING_SEASONS_CACHE_KEY = 'RANKING_SEASONS_CACHE_KEY';
 
     /**
      * @var Season

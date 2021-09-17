@@ -23,29 +23,29 @@ class elFinderVolumeBox extends elFinderVolumeDriver
     /**
      * @var string The base URL for API requests
      */
-    const API_URL = 'https://api.box.com/2.0';
+    public const API_URL = 'https://api.box.com/2.0';
 
     /**
      * @var string The base URL for authorization requests
      */
-    const AUTH_URL = 'https://www.box.com/api/oauth2/authorize';
+    public const AUTH_URL = 'https://www.box.com/api/oauth2/authorize';
 
     /**
      * @var string The base URL for token requests
      */
-    const TOKEN_URL = 'https://www.box.com/api/oauth2/token';
+    public const TOKEN_URL = 'https://www.box.com/api/oauth2/token';
 
     /**
      * @var string The base URL for upload requests
      */
-    const UPLOAD_URL = 'https://upload.box.com/api/2.0';
+    public const UPLOAD_URL = 'https://upload.box.com/api/2.0';
 
     /**
      * Fetch fields list.
      *
      * @var string
      */
-    const FETCHFIELDS = 'type,id,name,created_at,modified_at,description,size,parent,permissions,file_version,shared_link';
+    public const FETCHFIELDS = 'type,id,name,created_at,modified_at,description,size,parent,permissions,file_version,shared_link';
 
     /**
      * Box.com token object.
@@ -492,7 +492,7 @@ class elFinderVolumeBox extends elFinderVolumeDriver
      * @param string $path
      * @param string $size
      *
-     * @return string | boolean
+     * @return string|bool
      */
     protected function _bd_getThumbnail($path)
     {

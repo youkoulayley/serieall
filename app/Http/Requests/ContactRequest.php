@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Http\Requests;
@@ -6,8 +7,7 @@ namespace App\Http\Requests;
 use App\Rules\NotAllowedDomain;
 
 /**
- * Class ContactRequest
- * @package App\Http\Requests
+ * Class ContactRequest.
  */
 class ContactRequest extends Request
 {
@@ -30,9 +30,9 @@ class ContactRequest extends Request
     {
         return [
             'name' => 'required|max:255',
-            'email' => ['required', 'email', new NotAllowedDomain],
+            'email' => ['required', 'email', new NotAllowedDomain()],
             'objet' => 'required|between:10,100',
-            'message' => 'required|min:20'
+            'message' => 'required|min:20',
         ];
     }
 }

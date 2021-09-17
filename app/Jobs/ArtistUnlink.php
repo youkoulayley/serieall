@@ -4,18 +4,20 @@ namespace App\Jobs;
 
 use App\Models\Show;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 /**
- * Class ArtistUnlink
- * @package App\Jobs
+ * Class ArtistUnlink.
  */
 class ArtistUnlink implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     protected $show;
     protected $artistID;
@@ -24,9 +26,9 @@ class ArtistUnlink implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param Show $show
      * @param $artistID
      * @param $userID
+     *
      * @internal param $artistID
      * @internal param $idLog
      */
@@ -48,7 +50,7 @@ class ArtistUnlink implements ShouldQueue
 
         $this->show->artists()->detach($this->artistID);
 
-        $logMessage = 'Détachement de l\'artiste ' . $this->artistID . ' de la série ' . $this->show['name'];
+        $logMessage = 'Détachement de l\'artiste '.$this->artistID.' de la série '.$this->show['name'];
         saveLogMessage($idLog, $logMessage);
 
         endJob($idLog);

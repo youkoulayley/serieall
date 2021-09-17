@@ -1,8 +1,8 @@
 <?php
+
 declare(strict_types=1);
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Mail Driver
@@ -109,5 +109,4 @@ return [
     */
 
     'sendmail' => '/usr/sbin/sendmail -bs',
-
 ];

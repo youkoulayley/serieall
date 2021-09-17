@@ -2,20 +2,22 @@
 
 namespace App\Jobs;
 
+use App\Repositories\SeasonRepository;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Repositories\SeasonRepository;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 /**
- * Class SeasonUpdate
- * @package App\Jobs
+ * Class SeasonUpdate.
  */
 class SeasonUpdate implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     protected $inputs;
     protected $seasonRepository;
@@ -24,6 +26,7 @@ class SeasonUpdate implements ShouldQueue
      * Create a new job instance.
      *
      * @param $inputs
+     *
      * @internal param SeasonRepository $seasonRepository
      */
     public function __construct($inputs)
@@ -34,8 +37,8 @@ class SeasonUpdate implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @param SeasonRepository $seasonRepository
      * @return void
+     *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     public function handle(SeasonRepository $seasonRepository)
@@ -44,19 +47,19 @@ class SeasonUpdate implements ShouldQueue
 
         $season = $seasonRepository->getSeasonByID($this->inputs['id']);
 
-        $message = 'Mise à jour de la saison ' . $this->inputs['name'] . '|' . $this->inputs['id'];
+        $message = 'Mise à jour de la saison '.$this->inputs['name'].'|'.$this->inputs['id'];
         saveLogMessage($idLog, $message);
 
         $season->thetvdb_id = $this->inputs['thetvdb_id'];
-        $message = 'TheTVDB ID . ' . $this->inputs['thetvdb_id'];
+        $message = 'TheTVDB ID . '.$this->inputs['thetvdb_id'];
         saveLogMessage($idLog, $message);
 
         $season->name = $this->inputs['name'];
-        $message = 'Numéro . ' . $this->inputs['name'];
+        $message = 'Numéro . '.$this->inputs['name'];
         saveLogMessage($idLog, $message);
 
         $season->ba = $this->inputs['ba'];
-        $message = 'Bande Annonce . ' . $this->inputs['ba'];
+        $message = 'Bande Annonce . '.$this->inputs['ba'];
         saveLogMessage($idLog, $message);
 
         $season->save();

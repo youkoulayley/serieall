@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Cache;
 class ArticleRepository
 {
     /** Constant for cache*/
-    const LAST_6_ARTICLES_CACHE_KEY = 'LAST_6_ARTICLES_CACHE_KEY';
+    public const LAST_6_ARTICLES_CACHE_KEY = 'LAST_6_ARTICLES_CACHE_KEY';
 
     protected $article;
 

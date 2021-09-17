@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Http\Requests;
@@ -6,8 +7,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Class ArtistUpdateRequest
- * @package App\Http\Requests
+ * Class ArtistUpdateRequest.
  */
 class ArtistUpdateRequest extends FormRequest
 {
@@ -30,6 +30,7 @@ class ArtistUpdateRequest extends FormRequest
     {
         return [
             'role' => 'required|max:255',
-            'image' => 'image'];
+            'image' => 'image',
+        ];
     }
 }

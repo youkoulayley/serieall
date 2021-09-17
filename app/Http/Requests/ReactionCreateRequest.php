@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Http\Requests;
@@ -6,8 +7,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Class ReactionCreateRequest
- * @package App\Http\Requests
+ * Class ReactionCreateRequest.
  */
 class ReactionCreateRequest extends FormRequest
 {
@@ -30,6 +30,7 @@ class ReactionCreateRequest extends FormRequest
     {
         return [
             'object_parent_id' => 'required|numeric',
-            'reaction' => 'required|min:3'];
+            'reaction' => 'required|min:3',
+        ];
     }
 }

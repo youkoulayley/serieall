@@ -1,15 +1,15 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
 /**
- * Class ResetPasswordNotification
- * @package App\Notifications
+ * Class ResetPasswordNotification.
  */
 class ResetPasswordNotification extends Notification
 {
@@ -44,7 +44,7 @@ class ResetPasswordNotification extends Notification
      */
     public function toMail()
     {
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject('Lien de réinitialisation de mot de passe')
             ->line('Vous recevez ce mail car vous avez demandé une réinitialisation de votre mot de passe.')
             ->action('Le lien est ici.', url('password/reset', $this->token))
@@ -59,7 +59,6 @@ class ResetPasswordNotification extends Notification
     public function toArray()
     {
         return [
-            //
         ];
     }
 }

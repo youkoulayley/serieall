@@ -16,8 +16,8 @@ use Illuminate\Support\Facades\DB;
 class EpisodeRepository
 {
     /** Constant for cache*/
-    const PLANNING_CACHE_KEY = 'PLANNING_CACHE_KEY';
-    const RANKING_EPISODE_CACHE_KEY = 'RANKING_EPISODE_CACHE_KEY';
+    public const PLANNING_CACHE_KEY = 'PLANNING_CACHE_KEY';
+    public const RANKING_EPISODE_CACHE_KEY = 'RANKING_EPISODE_CACHE_KEY';
 
     protected $episode;
 

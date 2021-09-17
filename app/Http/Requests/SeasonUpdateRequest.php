@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Http\Requests;
@@ -6,8 +7,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Class SeasonUpdateRequest
- * @package App\Http\Requests
+ * Class SeasonUpdateRequest.
  */
 class SeasonUpdateRequest extends FormRequest
 {
@@ -29,7 +29,8 @@ class SeasonUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'thetvdb_id' => 'numeric|unique:seasons,thetvdb_id,' . $this->get('id') ,
-            'name' => 'required|numeric'];
+            'thetvdb_id' => 'numeric|unique:seasons,thetvdb_id,'.$this->get('id'),
+            'name' => 'required|numeric',
+        ];
     }
 }

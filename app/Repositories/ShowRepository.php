@@ -23,9 +23,9 @@ use Illuminate\Support\Str;
 class ShowRepository
 {
     /** Constant for cache*/
-    const LAST_ADDED_SHOW_CACHE_KEY = 'LAST_ADDED_SHOW_CACHE_KEY';
-    const RANKING_SHOWS_CACHE_KEY = 'RANKING_SHOWS_CACHE_KEY';
-    const THUMB_SHOW_CACHE_KEY = 'THUMB_SHOW_CACHE_KEY';
+    public const LAST_ADDED_SHOW_CACHE_KEY = 'LAST_ADDED_SHOW_CACHE_KEY';
+    public const RANKING_SHOWS_CACHE_KEY = 'RANKING_SHOWS_CACHE_KEY';
+    public const THUMB_SHOW_CACHE_KEY = 'THUMB_SHOW_CACHE_KEY';
 
     protected $show;
     protected $seasonRepository;

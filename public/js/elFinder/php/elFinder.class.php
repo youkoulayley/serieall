@@ -398,71 +398,71 @@ class elFinder
     protected $customData = null;
 
     // Errors messages
-    const ERROR_UNKNOWN = 'errUnknown';
-    const ERROR_UNKNOWN_CMD = 'errUnknownCmd';
-    const ERROR_CONF = 'errConf';
-    const ERROR_CONF_NO_JSON = 'errJSON';
-    const ERROR_CONF_NO_VOL = 'errNoVolumes';
-    const ERROR_INV_PARAMS = 'errCmdParams';
-    const ERROR_OPEN = 'errOpen';
-    const ERROR_DIR_NOT_FOUND = 'errFolderNotFound';
-    const ERROR_FILE_NOT_FOUND = 'errFileNotFound';     // 'File not found.'
-    const ERROR_TRGDIR_NOT_FOUND = 'errTrgFolderNotFound'; // 'Target folder "$1" not found.'
-    const ERROR_NOT_DIR = 'errNotFolder';
-    const ERROR_NOT_FILE = 'errNotFile';
-    const ERROR_PERM_DENIED = 'errPerm';
-    const ERROR_LOCKED = 'errLocked';        // '"$1" is locked and can not be renamed, moved or removed.'
-    const ERROR_EXISTS = 'errExists';        // 'File named "$1" already exists.'
-    const ERROR_INVALID_NAME = 'errInvName';       // 'Invalid file name.'
-    const ERROR_INVALID_DIRNAME = 'errInvDirname';    // 'Invalid folder name.'
-    const ERROR_MKDIR = 'errMkdir';
-    const ERROR_MKFILE = 'errMkfile';
-    const ERROR_RENAME = 'errRename';
-    const ERROR_COPY = 'errCopy';
-    const ERROR_MOVE = 'errMove';
-    const ERROR_COPY_FROM = 'errCopyFrom';
-    const ERROR_COPY_TO = 'errCopyTo';
-    const ERROR_COPY_ITSELF = 'errCopyInItself';
-    const ERROR_REPLACE = 'errReplace';          // 'Unable to replace "$1".'
-    const ERROR_RM = 'errRm';               // 'Unable to remove "$1".'
-    const ERROR_RM_SRC = 'errRmSrc';            // 'Unable remove source file(s)'
-    const ERROR_MKOUTLINK = 'errMkOutLink';        // 'Unable to create a link to outside the volume root.'
-    const ERROR_UPLOAD = 'errUpload';           // 'Upload error.'
-    const ERROR_UPLOAD_FILE = 'errUploadFile';       // 'Unable to upload "$1".'
-    const ERROR_UPLOAD_NO_FILES = 'errUploadNoFiles';    // 'No files found for upload.'
-    const ERROR_UPLOAD_TOTAL_SIZE = 'errUploadTotalSize';  // 'Data exceeds the maximum allowed size.'
-    const ERROR_UPLOAD_FILE_SIZE = 'errUploadFileSize';   // 'File exceeds maximum allowed size.'
-    const ERROR_UPLOAD_FILE_MIME = 'errUploadMime';       // 'File type not allowed.'
-    const ERROR_UPLOAD_TRANSFER = 'errUploadTransfer';   // '"$1" transfer error.'
-    const ERROR_UPLOAD_TEMP = 'errUploadTemp';       // 'Unable to make temporary file for upload.'
-    const ERROR_ACCESS_DENIED = 'errAccess';
-    const ERROR_NOT_REPLACE = 'errNotReplace';       // Object "$1" already exists at this location and can not be replaced with object of another type.
-    const ERROR_SAVE = 'errSave';
-    const ERROR_EXTRACT = 'errExtract';
-    const ERROR_ARCHIVE = 'errArchive';
-    const ERROR_NOT_ARCHIVE = 'errNoArchive';
-    const ERROR_ARCHIVE_TYPE = 'errArcType';
-    const ERROR_ARC_SYMLINKS = 'errArcSymlinks';
-    const ERROR_ARC_MAXSIZE = 'errArcMaxSize';
-    const ERROR_RESIZE = 'errResize';
-    const ERROR_RESIZESIZE = 'errResizeSize';
-    const ERROR_UNSUPPORT_TYPE = 'errUsupportType';
-    const ERROR_CONV_UTF8 = 'errConvUTF8';
-    const ERROR_NOT_UTF8_CONTENT = 'errNotUTF8Content';
-    const ERROR_NETMOUNT = 'errNetMount';
-    const ERROR_NETUNMOUNT = 'errNetUnMount';
-    const ERROR_NETMOUNT_NO_DRIVER = 'errNetMountNoDriver';
-    const ERROR_NETMOUNT_FAILED = 'errNetMountFailed';
-    const ERROR_SESSION_EXPIRES = 'errSessionExpires';
-    const ERROR_CREATING_TEMP_DIR = 'errCreatingTempDir';
-    const ERROR_FTP_DOWNLOAD_FILE = 'errFtpDownloadFile';
-    const ERROR_FTP_UPLOAD_FILE = 'errFtpUploadFile';
-    const ERROR_FTP_MKDIR = 'errFtpMkdir';
-    const ERROR_ARCHIVE_EXEC = 'errArchiveExec';
-    const ERROR_EXTRACT_EXEC = 'errExtractExec';
-    const ERROR_SEARCH_TIMEOUT = 'errSearchTimeout';    // 'Timed out while searching "$1". Search result is partial.'
-    const ERROR_REAUTH_REQUIRE = 'errReauthRequire';  // 'Re-authorization is required.'
-    const ERROR_MAX_TARGTES = 'errMaxTargets'; // 'Max number of selectable items is $1.'
+    public const ERROR_UNKNOWN = 'errUnknown';
+    public const ERROR_UNKNOWN_CMD = 'errUnknownCmd';
+    public const ERROR_CONF = 'errConf';
+    public const ERROR_CONF_NO_JSON = 'errJSON';
+    public const ERROR_CONF_NO_VOL = 'errNoVolumes';
+    public const ERROR_INV_PARAMS = 'errCmdParams';
+    public const ERROR_OPEN = 'errOpen';
+    public const ERROR_DIR_NOT_FOUND = 'errFolderNotFound';
+    public const ERROR_FILE_NOT_FOUND = 'errFileNotFound';     // 'File not found.'
+    public const ERROR_TRGDIR_NOT_FOUND = 'errTrgFolderNotFound'; // 'Target folder "$1" not found.'
+    public const ERROR_NOT_DIR = 'errNotFolder';
+    public const ERROR_NOT_FILE = 'errNotFile';
+    public const ERROR_PERM_DENIED = 'errPerm';
+    public const ERROR_LOCKED = 'errLocked';        // '"$1" is locked and can not be renamed, moved or removed.'
+    public const ERROR_EXISTS = 'errExists';        // 'File named "$1" already exists.'
+    public const ERROR_INVALID_NAME = 'errInvName';       // 'Invalid file name.'
+    public const ERROR_INVALID_DIRNAME = 'errInvDirname';    // 'Invalid folder name.'
+    public const ERROR_MKDIR = 'errMkdir';
+    public const ERROR_MKFILE = 'errMkfile';
+    public const ERROR_RENAME = 'errRename';
+    public const ERROR_COPY = 'errCopy';
+    public const ERROR_MOVE = 'errMove';
+    public const ERROR_COPY_FROM = 'errCopyFrom';
+    public const ERROR_COPY_TO = 'errCopyTo';
+    public const ERROR_COPY_ITSELF = 'errCopyInItself';
+    public const ERROR_REPLACE = 'errReplace';          // 'Unable to replace "$1".'
+    public const ERROR_RM = 'errRm';               // 'Unable to remove "$1".'
+    public const ERROR_RM_SRC = 'errRmSrc';            // 'Unable remove source file(s)'
+    public const ERROR_MKOUTLINK = 'errMkOutLink';        // 'Unable to create a link to outside the volume root.'
+    public const ERROR_UPLOAD = 'errUpload';           // 'Upload error.'
+    public const ERROR_UPLOAD_FILE = 'errUploadFile';       // 'Unable to upload "$1".'
+    public const ERROR_UPLOAD_NO_FILES = 'errUploadNoFiles';    // 'No files found for upload.'
+    public const ERROR_UPLOAD_TOTAL_SIZE = 'errUploadTotalSize';  // 'Data exceeds the maximum allowed size.'
+    public const ERROR_UPLOAD_FILE_SIZE = 'errUploadFileSize';   // 'File exceeds maximum allowed size.'
+    public const ERROR_UPLOAD_FILE_MIME = 'errUploadMime';       // 'File type not allowed.'
+    public const ERROR_UPLOAD_TRANSFER = 'errUploadTransfer';   // '"$1" transfer error.'
+    public const ERROR_UPLOAD_TEMP = 'errUploadTemp';       // 'Unable to make temporary file for upload.'
+    public const ERROR_ACCESS_DENIED = 'errAccess';
+    public const ERROR_NOT_REPLACE = 'errNotReplace';       // Object "$1" already exists at this location and can not be replaced with object of another type.
+    public const ERROR_SAVE = 'errSave';
+    public const ERROR_EXTRACT = 'errExtract';
+    public const ERROR_ARCHIVE = 'errArchive';
+    public const ERROR_NOT_ARCHIVE = 'errNoArchive';
+    public const ERROR_ARCHIVE_TYPE = 'errArcType';
+    public const ERROR_ARC_SYMLINKS = 'errArcSymlinks';
+    public const ERROR_ARC_MAXSIZE = 'errArcMaxSize';
+    public const ERROR_RESIZE = 'errResize';
+    public const ERROR_RESIZESIZE = 'errResizeSize';
+    public const ERROR_UNSUPPORT_TYPE = 'errUsupportType';
+    public const ERROR_CONV_UTF8 = 'errConvUTF8';
+    public const ERROR_NOT_UTF8_CONTENT = 'errNotUTF8Content';
+    public const ERROR_NETMOUNT = 'errNetMount';
+    public const ERROR_NETUNMOUNT = 'errNetUnMount';
+    public const ERROR_NETMOUNT_NO_DRIVER = 'errNetMountNoDriver';
+    public const ERROR_NETMOUNT_FAILED = 'errNetMountFailed';
+    public const ERROR_SESSION_EXPIRES = 'errSessionExpires';
+    public const ERROR_CREATING_TEMP_DIR = 'errCreatingTempDir';
+    public const ERROR_FTP_DOWNLOAD_FILE = 'errFtpDownloadFile';
+    public const ERROR_FTP_UPLOAD_FILE = 'errFtpUploadFile';
+    public const ERROR_FTP_MKDIR = 'errFtpMkdir';
+    public const ERROR_ARCHIVE_EXEC = 'errArchiveExec';
+    public const ERROR_EXTRACT_EXEC = 'errExtractExec';
+    public const ERROR_SEARCH_TIMEOUT = 'errSearchTimeout';    // 'Timed out while searching "$1". Search result is partial.'
+    public const ERROR_REAUTH_REQUIRE = 'errReauthRequire';  // 'Re-authorization is required.'
+    public const ERROR_MAX_TARGTES = 'errMaxTargets'; // 'Max number of selectable items is $1.'
 
     /**
      * Constructor.
@@ -1304,7 +1304,7 @@ class elFinder
      * @param string $name Plugin name (dirctory name)
      * @param array  $opts Plugin options (optional)
      *
-     * @return object | bool Plugin object instance Or false
+     * @return object|bool Plugin object instance Or false
      *
      * @author Naoki Sawada
      */

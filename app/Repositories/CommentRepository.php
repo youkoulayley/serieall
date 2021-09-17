@@ -16,7 +16,7 @@ class CommentRepository
 {
     protected $comment;
 
-    const THUMB_SHOW_CACHE_KEY = 'THUMB_SHOW_CACHE_KEY';
+    public const THUMB_SHOW_CACHE_KEY = 'THUMB_SHOW_CACHE_KEY';
 
     /**
      * SeasonRepository constructor.

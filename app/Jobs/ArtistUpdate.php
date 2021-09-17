@@ -3,18 +3,20 @@
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 /**
- * Class ArtistUpdate
- * @package App\Jobs
+ * Class ArtistUpdate.
  */
 class ArtistUpdate implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     protected $artist;
     protected $show_id;
@@ -46,7 +48,7 @@ class ArtistUpdate implements ShouldQueue
     {
         $this->artist->shows()->updateExistingPivot($this->show_id, ['role' => $this->role]);
 
-        $logMessage = 'Mise à jour de l\'artiste ' . $this->artist['name'] . ' de ' . $this->show_id . ' et de son rôle ' . $this->role;
+        $logMessage = 'Mise à jour de l\'artiste '.$this->artist['name'].' de '.$this->show_id.' et de son rôle '.$this->role;
         saveLogMessage($this->idLog, $logMessage);
 
         endJob($this->idLog);

@@ -60,21 +60,21 @@ class elFinderVolumeGoogleDrive extends elFinderVolumeDriver
      *
      * @var string
      */
-    const DIRMIME = 'application/vnd.google-apps.folder';
+    public const DIRMIME = 'application/vnd.google-apps.folder';
 
     /**
      * Fetch fields for list.
      *
      * @var string
      */
-    const FETCHFIELDS_LIST = 'files(id,name,mimeType,modifiedTime,parents,permissions,size,imageMediaMetadata(height,width),thumbnailLink,webContentLink,webViewLink),nextPageToken';
+    public const FETCHFIELDS_LIST = 'files(id,name,mimeType,modifiedTime,parents,permissions,size,imageMediaMetadata(height,width),thumbnailLink,webContentLink,webViewLink),nextPageToken';
 
     /**
      * Fetch fields for get.
      *
      * @var string
      */
-    const FETCHFIELDS_GET = 'id,name,mimeType,modifiedTime,parents,permissions,size,imageMediaMetadata(height,width),thumbnailLink,webContentLink,webViewLink';
+    public const FETCHFIELDS_GET = 'id,name,mimeType,modifiedTime,parents,permissions,size,imageMediaMetadata(height,width),thumbnailLink,webContentLink,webViewLink';
 
     /**
      * Directory for tmp files
@@ -501,7 +501,7 @@ class elFinderVolumeGoogleDrive extends elFinderVolumeDriver
      * @param string $path
      * @param string $size
      *
-     * @return string | boolean
+     * @return string|bool
      */
     protected function _gd_getThumbnail($path)
     {

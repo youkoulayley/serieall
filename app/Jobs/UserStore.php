@@ -4,18 +4,20 @@ namespace App\Jobs;
 
 use App\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 /**
- * Class UserStore
- * @package App\Jobs
+ * Class UserStore.
  */
 class UserStore implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     protected $inputs;
 
@@ -45,38 +47,38 @@ class UserStore implements ShouldQueue
 
         $user = new User();
 
-        $message = 'Username : ' . $this->inputs['username'];
+        $message = 'Username : '.$this->inputs['username'];
         saveLogMessage($idLog, $message);
         $user->username = $this->inputs['username'];
 
-        $message = 'Rôle : ' . $this->inputs['role'];
+        $message = 'Rôle : '.$this->inputs['role'];
         saveLogMessage($idLog, $message);
         $user->role = $this->inputs['role'];
 
         $user->password = bcrypt($this->inputs['password']);
         $user->activated = 1;
 
-        $message = 'E-Mail : ' . $this->inputs['email'];
+        $message = 'E-Mail : '.$this->inputs['email'];
         saveLogMessage($idLog, $message);
         $user->email = $this->inputs['email'];
 
-        $message = 'Edito : ' . $this->inputs['edito'];
+        $message = 'Edito : '.$this->inputs['edito'];
         saveLogMessage($idLog, $message);
         $user->edito = $this->inputs['edito'];
 
-        $message = 'Antispoiler : ' . $this->inputs['antispoiler'];
+        $message = 'Antispoiler : '.$this->inputs['antispoiler'];
         saveLogMessage($idLog, $message);
         $user->antispoiler = $this->inputs['antispoiler'];
 
-        $message = 'Site Internet : ' . $this->inputs['website'];
+        $message = 'Site Internet : '.$this->inputs['website'];
         saveLogMessage($idLog, $message);
         $user->website = $this->inputs['website'];
 
-        $message = 'Twitter : ' . $this->inputs['twitter'];
+        $message = 'Twitter : '.$this->inputs['twitter'];
         saveLogMessage($idLog, $message);
         $user->twitter = $this->inputs['twitter'];
 
-        $message = 'Facebook : ' . $this->inputs['facebook'];
+        $message = 'Facebook : '.$this->inputs['facebook'];
         saveLogMessage($idLog, $message);
         $user->facebook = $this->inputs['facebook'];
 

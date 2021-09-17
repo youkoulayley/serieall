@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Http\Requests;
@@ -6,8 +7,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Class EpisodeCreateRequest
- * @package App\Http\Requests
+ * Class EpisodeCreateRequest.
  */
 class EpisodeCreateRequest extends FormRequest
 {
@@ -36,6 +36,7 @@ class EpisodeCreateRequest extends FormRequest
             'episodes.*.diffusion_fr' => 'date',
             'episodes.*.directors' => ['regex:/^[A-Za-z0-9-éèàùç%+. ]{1,255}?(,[A-Za-z0-9-éèàùç%+. ]{1,255})*$/'],
             'episodes.*.writers' => ['regex:/^[A-Za-z0-9-éèàùç%+. ]{1,255}?(,[A-Za-z0-9-éèàùç%+. ]{1,255})*$/'],
-            'episodes.*.guests' => ['regex:/^[A-Za-z0-9-éèàùç%+. ]{1,255}?(,[A-Za-z0-9-éèàùç%+. ]{1,255})*$/']];
+            'episodes.*.guests' => ['regex:/^[A-Za-z0-9-éèàùç%+. ]{1,255}?(,[A-Za-z0-9-éèàùç%+. ]{1,255})*$/'],
+        ];
     }
 }

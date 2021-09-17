@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Http\Requests;
@@ -6,10 +7,8 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Class Request
- * @package App\Http\Requests
+ * Class Request.
  */
 abstract class Request extends FormRequest
 {
-    //
 }

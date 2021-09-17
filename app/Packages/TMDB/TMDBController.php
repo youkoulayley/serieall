@@ -2,8 +2,8 @@
 
 namespace App\Packages\TMDB;
 
-use App\Models\Artist;
 use App\Models\Channel;
+use App\Models\Episode;
 use App\Models\Genre;
 use App\Models\Nationality;
 use App\Models\Season;
@@ -98,24 +98,6 @@ class TMDBController
         );
     }
 
-    // getSeasonsByShow gets all the seasons for a specific show.
-    public function getSeasonsByShow(string $id, int $seasonsCount): array
-    {
-        $listSeasons = [];
-
-        // Don't get specials episodes (i starts at 1)
-        for ($i = 1; $i <= $seasonsCount; ++$i) {
-            $season = $this->client->getTvSeasonApi()->getSeason($id, $i);
-
-            array_push($listSeasons, new Season([
-                'tmdb_id' => $season['id'],
-                'name' => $season['season_number'],
-            ]));
-        }
-
-        return $listSeasons;
-    }
-
     // getActors gets all actors for a show.
     public function getActors(string $id): array
     {
@@ -127,13 +109,72 @@ class TMDBController
                 continue;
             }
 
-            array_push($listActors, new TMDBActor(
+            array_push($listActors, new TMDBArtist(
                 $actor['name'],
+                Str::slug($actor['name']),
+                'actor',
                 $actor['character'],
             ));
         }
 
         return $listActors;
+    }
+
+    // getSeasonsByShow gets all the seasons for a specific show.
+    public function getSeasonsByShow(string $id, int $seasonsCount): array
+    {
+        $listSeasons = [];
+
+        // Don't get specials episodes (i starts at 1)
+        for ($i = 1; $i <= $seasonsCount; ++$i) {
+            $TMDBSeasonEN = $this->client->getTvSeasonApi()->getSeason($id, $i, ['language' => 'en']);
+            $TMDBSeasonFR = $this->client->getTvSeasonApi()->getSeason($id, $i, ['language' => 'fr']);
+
+            $episodes = $this->getEpisodes($TMDBSeasonEN['episodes'], $TMDBSeasonFR['episodes']);
+
+            array_push(
+                $listSeasons,
+                new TMDBSeason(
+                    new Season([
+                        'tmdb_id' => $TMDBSeasonEN['id'],
+                        'name' => $TMDBSeasonEN['season_number'],
+                    ]),
+                    $episodes,
+                )
+            );
+        }
+
+        return $listSeasons;
+    }
+
+    // getEpisodes gets all episodes from the passed array.
+    private function getEpisodes(array $episodesEN, array $episodesFR): array
+    {
+        $listEpisodes = [];
+
+        foreach ($episodesEN as $i => $episode) {
+            array_push(
+                $listEpisodes,
+                new TMDBEpisode(
+                    new Episode([
+                        'tmdb_id' => $episode['id'],
+                        'numero' => $episode['episode_number'],
+                        'name' => $episode['name'],
+                        'name_fr' => $episodesFR[$i]['name'],
+                        'resume' => $episode['overview'],
+                        'resume_fr' => $episodesFR[$i]['overview'],
+                        'diffusion_us' => $episode['air_date'],
+                        'diffusion_fr' => $episodesFR[$i]['air_date'],
+                        'picture' => config('tmdb.imageURL').'/w500'.$episode['still_path'],
+                    ]),
+                    $this->buildArtists($episode['crew'], 'director', 'Directing'),
+                    $this->buildArtists($episode['crew'], 'writer', 'Writing'),
+                    $this->buildArtists($episode['guest_stars'], 'writer', 'Acting'),
+                ),
+            );
+        }
+
+        return $listEpisodes;
     }
 
     // buildGenres builds the genres.
@@ -160,18 +201,43 @@ class TMDBController
         foreach ($creators as $i => $creator) {
             array_push(
                 $listCreators,
-                new Artist([
-                    'name' => $creator['name'],
-                    'artist_url' => Str::slug($creator['name']),
-                ])
+                new TMDBArtist(
+                    $creator['name'],
+                    Str::slug($creator['name']),
+                    'creator',
+                    '',
+                )
             );
         }
 
         return $listCreators;
     }
 
+    // buildArtists builds the artists.
+    private function buildArtists(array $artists, string $profession, string $filter): array
+    {
+        $listArtists = [];
+        foreach ($artists as $i => $artist) {
+            if ($artist['known_for_department'] != $filter) {
+                continue;
+            }
+
+            array_push(
+                $listArtists,
+                new TMDBArtist(
+                    $artist['name'],
+                    Str::slug($artist['name']),
+                    $profession,
+                    '',
+                )
+            );
+        }
+
+        return $listArtists;
+    }
+
     /**
-     * buildNationalities build the nationalities string.
+     * buildNationalities build the nationalities.
      * TODO: Replace nationalities by ISO_3166_1 everywhere.
      */
     private function buildNationalities(array $nationalities): array

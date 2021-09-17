@@ -2,21 +2,22 @@
 
 namespace App\Jobs;
 
-use App\Repositories\EpisodeRepository;
 use App\Repositories\SloganRepository;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 /**
- * Class SloganDelete
- * @package App\Jobs
+ * Class SloganDelete.
  */
 class SloganDelete implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     protected $sloganID;
     protected $userID;
@@ -36,7 +37,6 @@ class SloganDelete implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @param SloganRepository $sloganRepository
      * @return void
      */
     public function handle(SloganRepository $sloganRepository)
@@ -45,7 +45,7 @@ class SloganDelete implements ShouldQueue
 
         $idLog = initJob($this->userID, 'Suppression', 'Slogan', $this->sloganID);
 
-        $logMessage = '>> Slogan ' . $slogan->message;
+        $logMessage = '>> Slogan '.$slogan->message;
         saveLogMessage($idLog, $logMessage);
 
         // On le supprime

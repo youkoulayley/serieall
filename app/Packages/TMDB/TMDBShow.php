@@ -19,8 +19,15 @@ class TMDBShow
     private int $seasons_count;
     private int $episodes_count;
 
-    public function __construct(Show $show, array $genres, array $creators, array $nationalities, array $channels, int $seasons_count, int $episodes_count)
-    {
+    public function __construct(
+        Show $show,
+        array $genres,
+        array $creators,
+        array $nationalities,
+        array $channels,
+        int $seasons_count,
+        int $episodes_count
+    ) {
         $this->show = $show;
         $this->genres = $genres;
         $this->creators = $creators;

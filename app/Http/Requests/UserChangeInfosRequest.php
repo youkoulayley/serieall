@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Http\Requests;
@@ -6,14 +7,14 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Class UserChangeInfosRequest
+ * Class UserChangeInfosRequest.
+ *
  * @property mixed email
  * @property mixed antispoiler
  * @property mixed twitter
  * @property mixed facebook
  * @property mixed website
  * @property mixed edito
- * @package App\Http\Requests
  */
 class UserChangeInfosRequest extends FormRequest
 {
@@ -35,10 +36,11 @@ class UserChangeInfosRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|email|max:255|unique:users,email,' . $this->get('id'),
+            'email' => 'required|email|max:255|unique:users,email,'.$this->get('id'),
             'antispoiler' => 'boolean',
             'website' => 'max:255',
             'twitter' => 'max:255',
-            'facebook' => 'max:255'];
+            'facebook' => 'max:255',
+        ];
     }
 }
