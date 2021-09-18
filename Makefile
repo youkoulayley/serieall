@@ -9,7 +9,8 @@ lint:
 	vendor/bin/php-cs-fixer fix .
 
 tests:
-	vendor/bin/phpunit
+	php7 -f /usr/bin/composer dump-autoload
+	vendor/bin/phpunit --configuration phpunit.xml
 
 install-dependencies:
 	php7 -f /usr/bin/composer install

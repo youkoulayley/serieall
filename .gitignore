@@ -1,17 +1,16 @@
 # Created by .ignore support plugin (hsz.mobi)
 ### Laravel template
 .idea
-vendor/
+.vscode/settings.json
+
 .env
 .sass-cache
-.php_cs_fixer.cache
+.php-cs-fixer.cache
 .php_cs.cache
 .phpstorm.meta.php
-!resources/views/vendor
-!resources/lang/vendor
+.phpunit.result.cache
 
 public/.sass-cache
-
 !public/css/semantic_perso.css
 !public/css/style.css
 public/css
@@ -23,9 +22,11 @@ public/images/.trash
 public/images/articles
 public/images/shows
 !public/images/shows/default_empty.jpg
-public/images/.tmb
 public/images/
 public/img
 *.mp3
 *.wav
-.vscode/settings.json
+
+vendor/
+!resources/views/vendor
+!resources/lang/vendor

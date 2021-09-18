@@ -262,7 +262,7 @@ class TMDBController
     private function buildChannels(array $channels): array
     {
         $listChannels = [];
-        foreach ($channels as $i => $channel) {
+        foreach ($channels as $channel) {
             array_push(
                 $listChannels,
                 new Channel([
