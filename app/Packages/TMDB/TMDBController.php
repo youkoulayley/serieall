@@ -27,7 +27,7 @@ class TMDBController
 {
     private string $apiKey;
 
-    private Client $client;
+    public Client $client;
 
     public function __construct(string $apiKey)
     {
@@ -70,6 +70,8 @@ class TMDBController
     {
         $TMDBShowEN = $this->client->getTvApi()->getTvshow($id, ['language' => 'en']);
         $TMDBShowFR = $this->client->getTvApi()->getTvshow($id, ['language' => 'fr']);
+        var_dump($TMDBShowEN);
+        var_dump($TMDBShowFR);
 
         $genres = $this->buildGenres($TMDBShowFR['genres']);
         $creators = $this->buildCreators($TMDBShowEN['created_by']);

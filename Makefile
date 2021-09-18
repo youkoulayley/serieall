@@ -1,4 +1,5 @@
-.PHONY: install-dependencies update-dependencies \
+.PHONY: lint tests \
+		install-dependencies update-dependencies \
 		start-db stop-db \
 		start-redis stop-redis
 
@@ -6,6 +7,9 @@ default: start-db start-redis
 
 lint:
 	vendor/bin/php-cs-fixer fix .
+
+tests:
+	vendor/bin/phpunit
 
 install-dependencies:
 	php7 -f /usr/bin/composer install
