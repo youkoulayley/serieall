@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Interfaces\CommentRepositoryInterface;
 use App\Models\Comment;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 /**
  * Class CommentRepository.
  */
-class CommentRepository
+class CommentRepository implements CommentRepositoryInterface
 {
     protected $comment;
 

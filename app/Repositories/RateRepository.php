@@ -4,20 +4,26 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Interfaces\EpisodeRepositoryInterface;
+use App\Interfaces\RateRepositoryInterface;
+use App\Interfaces\SeasonRepositoryInterface;
+use App\Interfaces\ShowRepositoryInterface;
 use App\Models\Episode;
 use App\Models\Episode_user;
 use App\Models\Season;
 use App\Models\Show;
-use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class RateRepository.
  */
-class RateRepository
+class RateRepository implements RateRepositoryInterface
 {
     /** Constant for cache*/
     public const SHOW_MOMENT_CACHE_KEY = 'SHOW_MOMENT_CACHE_KEY';
@@ -34,9 +40,9 @@ class RateRepository
      * RateRepository constructor.
      */
     public function __construct(
-        ShowRepository $showRepository,
-        SeasonRepository $seasonRepository,
-        EpisodeRepository $episodeRepository
+        ShowRepositoryInterface $showRepository,
+        SeasonRepositoryInterface $seasonRepository,
+        EpisodeRepositoryInterface $episodeRepository
     ) {
         $this->showRepository = $showRepository;
         $this->seasonRepository = $seasonRepository;
@@ -52,7 +58,7 @@ class RateRepository
      *
      * @return bool
      *
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * @throws ModelNotFoundException
      */
     public function RateEpisode($user_id, $episode_id, $rate)
     {
@@ -111,7 +117,7 @@ class RateRepository
      * @param $user_id
      * @param $episode_id
      *
-     * @return \Illuminate\Database\Eloquent\Model|static|null
+     * @return Model|static|null
      */
     public function getRateByUserIDEpisodeID($user_id, $episode_id)
     {
@@ -144,7 +150,7 @@ class RateRepository
      * @param $user_id
      * @param $episode_id
      *
-     * @return \Illuminate\Database\Eloquent\Model|static|null
+     * @return Model|static|null
      */
     public function getRateByUserID($user_id)
     {
@@ -164,7 +170,7 @@ class RateRepository
      * @param $user_id
      * @param $episode_id
      *
-     * @return \Illuminate\Database\Eloquent\Model|static|null
+     * @return Model|static|null
      */
     public function getAllRateByUserID($user_id)
     {
@@ -361,8 +367,6 @@ class RateRepository
     /**
      * @param $user
      * @param $order
-     *
-     * @return Show
      */
     public function getRankingPilotByUsers($user, $order)
     {
@@ -382,9 +386,11 @@ class RateRepository
             ->get();
     }
 
+    /**
+     * @return mixed
+     */
     public function getShowsMoment()
     {
-//        return Cache::remember(RateRepository::SHOW_MOMENT_CACHE_KEY, Config::get('constants.cacheDuration.long'), function () {
         return Episode_user::leftJoin('episodes', 'episode_user.episode_id', '=', 'episodes.id')
                 ->leftJoin('seasons', 'episodes.season_id', '=', 'seasons.id')
                 ->leftJoin('shows', 'seasons.show_id', '=', 'shows.id')
@@ -393,10 +399,42 @@ class RateRepository
                     Carbon::now()->subWeek(),
                     Carbon::now(), ])
                 ->orderBy('nbnotes_last_week', 'DESC')
-//                ->orderBy('nbnotes')
                 ->groupBy('shows.name', 'shows.nbnotes', 'shows.moyenne')
                 ->limit(10)
                 ->get();
-//        });
+    }
+
+    /**
+     * Get Average Rate for the given userID.
+     *
+     * @param $userID
+     *
+     * @return int
+     */
+    public function getAvgRateByUserID($userID): int
+    {
+        try {
+            return $this->getAllRateByUserID($userID)->select(DB::raw('trim(round(avg(rate),2))+0 avg, count(*) nb_rates'))->first();
+        } catch (ModelNotFoundException $e) {
+            Log::error("unable to get rates for user $userID");
+            return 0;
+        }
+    }
+
+    /**
+     * Get a charts of every rate/count for the given userID.
+     *
+     * @param $userID
+     *
+     * @return array
+     */
+    public function getChartRatesByUserID($userID)
+    {
+        try {
+            return $this->getAllRateByUserID($userID)->select('rate', DB::raw('count(*) as total'))->groupBy('rate')->get()->toArray();
+        } catch (ModelNotFoundException $e) {
+            Log::error("unable to get chart rates for user $userID");
+            return [];
+        }
     }
 }

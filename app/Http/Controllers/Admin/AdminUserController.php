@@ -32,6 +32,9 @@ class AdminUserController extends Controller
     /**
      * AdminUserController constructor.
      *
+     * @param UserRepository $userRepository
+     * @param CommentRepository $commentRepository
+     * @param ShowRepository $showRepository
      * @internal param SeasonRepository $seasonRepository
      * @internal param ShowRepository $showRepository
      * @internal param ArtistRepository $artistRepository

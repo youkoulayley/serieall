@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Interfaces\EpisodeRepositoryInterface;
 use App\Models\Episode;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Class SeasonRepository.
  */
-class EpisodeRepository
+class EpisodeRepository implements EpisodeRepositoryInterface
 {
     /** Constant for cache*/
     public const PLANNING_CACHE_KEY = 'PLANNING_CACHE_KEY';

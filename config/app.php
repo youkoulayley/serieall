@@ -184,6 +184,15 @@ return [
         App\Providers\ComposerServiceProvider::class,
 
         /*
+         * Custom Service Providers...
+         */
+        App\Providers\CommentRepositoryProvider::class,
+        App\Providers\RateRepositoryProvider::class,
+        App\Providers\ShowRepositoryProvider::class,
+        App\Providers\UserRepositoryProvider::class,
+        App\Providers\UserServiceProvider::class,
+
+        /*
          * Allow authenticate with md5 password
          */
         App\Packages\Hashing\YourHashingServiceProvider::class,

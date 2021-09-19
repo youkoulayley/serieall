@@ -9,54 +9,60 @@ use App\Http\Requests\changePasswordRequest;
 use App\Http\Requests\FollowShowRequest;
 use App\Http\Requests\NotificationRequest;
 use App\Http\Requests\UserChangeInfosRequest;
-use App\Repositories\CommentRepository;
-use App\Repositories\RateRepository;
-use App\Repositories\ShowRepository;
-use App\Repositories\UserRepository;
+use App\Interfaces\CommentRepositoryInterface;
+use App\Interfaces\RateRepositoryInterface;
+use App\Interfaces\ShowRepositoryInterface;
+use App\Interfaces\UserServiceInterface;
+use App\Interfaces\UserRepositoryInterface;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Request;
+use Illuminate\View\View;
 use MaddHatter\LaravelFullcalendar\Facades\Calendar;
-use Response;
-use View;
 
 /**
  * Class UserController.
  */
 class UserController extends Controller
 {
-    protected $userRepository;
-    protected $rateRepository;
-    protected $commentRepository;
-    protected $showRepository;
+    private UserRepositoryInterface $userRepositoryInterface;
+    private RateRepositoryInterface $rateRepositoryInterface;
+    private CommentRepositoryInterface $commentRepositoryInterface;
+    private ShowRepositoryInterface $showRepositoryInterface;
+    private UserServiceInterface $userPackage;
 
     /**
      * UserController constructor.
      */
     public function __construct(
-        UserRepository $userRepository,
-        RateRepository $rateRepository,
-        CommentRepository $commentRepository,
-        ShowRepository $showRepository
+        UserServiceInterface       $userPackage,
+        UserRepositoryInterface    $userRepositoryInterface,
+        RateRepositoryInterface    $rateRepositoryInterface,
+        CommentRepositoryInterface $commentRepositoryInterface,
+        ShowRepositoryInterface    $showRepositoryInterface
     ) {
-        $this->userRepository = $userRepository;
-        $this->rateRepository = $rateRepository;
-        $this->commentRepository = $commentRepository;
-        $this->showRepository = $showRepository;
+        $this->userPackage = $userPackage;
+        $this->userRepositoryInterface = $userRepositoryInterface;
+        $this->rateRepositoryInterface = $rateRepositoryInterface;
+        $this->commentRepositoryInterface = $commentRepositoryInterface;
+        $this->showRepositoryInterface = $showRepositoryInterface;
     }
 
     /**
-     * Renvoi vers la page users/index.
+     * Get user index.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index()
     {
-        $users = $this->userRepository->list();
+        $users = $this->userPackage->listUsers();
 
         return view('users.index', compact('users'));
     }
@@ -66,25 +72,25 @@ class UserController extends Controller
      *
      * @param $userURL
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      *
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * @throws ModelNotFoundException
      */
     public function getProfile($userURL)
     {
-        $user = $this->userRepository->getByURL($userURL);
+        $user = $this->userRepositoryInterface->getByURL($userURL);
 
-        $all_rates = $this->rateRepository->getAllRateByUserID($user->id);
+        $all_rates = $this->rateRepositoryInterface->getAllRateByUserID($user->id);
         $avg_user_rates = $all_rates->select(DB::raw('trim(round(avg(rate),2))+0 avg, count(*) nb_rates'))->first();
 
-        $comments = $this->commentRepository->getCommentByUserIDThumbNotNull($user->id);
-        $nb_comments = $this->commentRepository->countCommentByUserIDThumbNotNull($user->id);
+        $comments = $this->commentRepositoryInterface->getCommentByUserIDThumbNotNull($user->id);
+        $nb_comments = $this->commentRepositoryInterface->countCommentByUserIDThumbNotNull($user->id);
         $comment_fav = $comments->where('thumb', '=', 1)->first();
         $comment_neu = $comments->where('thumb', '=', 2)->first();
         $comment_def = $comments->where('thumb', '=', 3)->first();
-        $time_passed_shows = getTimePassedOnShow($this->rateRepository, $user->id);
+        $time_passed_shows = getTimePassedOnShow($this->rateRepositoryInterface, $user->id);
 
-        $rates = $this->rateRepository->getRateByUserID($user->id);
+        $rates = $this->rateRepositoryInterface->getRateByUserID($user->id);
 
         return view('users.profile', compact('user', 'rates', 'avg_user_rates', 'comment_fav', 'comment_def', 'comment_neu', 'nb_comments', 'time_passed_shows'));
     }
@@ -95,38 +101,38 @@ class UserController extends Controller
      * @param $userURL
      * @param $action
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\JsonResponse|\Illuminate\View\View|Response
+     * @return Factory|\Illuminate\Http\JsonResponse|View|Response
      */
     public function getRates($userURL, $action = '')
     {
-        $user = $this->userRepository->getByURL($userURL);
+        $user = $this->userRepositoryInterface->getByURL($userURL);
 
-        $all_rates = $this->rateRepository->getAllRateByUserID($user->id);
-        $all_rates_chart = $this->rateRepository->getAllRateByUserID($user->id);
+        $all_rates = $this->rateRepositoryInterface->getAllRateByUserID($user->id);
+        $all_rates_chart = $this->rateRepositoryInterface->getAllRateByUserID($user->id);
         $avg_user_rates = $all_rates->select(DB::raw('trim(round(avg(rate),2))+0 avg, count(*) nb_rates'))->first();
         $chart_rates = $all_rates_chart->select('rate', DB::raw('count(*) as total'))->groupBy('rate')->get();
 
-        $comments = $this->commentRepository->getCommentByUserIDThumbNotNull($user->id);
-        $nb_comments = $this->commentRepository->countCommentByUserIDThumbNotNull($user->id);
+        $comments = $this->commentRepositoryInterface->getCommentByUserIDThumbNotNull($user->id);
+        $nb_comments = $this->commentRepositoryInterface->countCommentByUserIDThumbNotNull($user->id);
         $comment_fav = $comments->where('thumb', '=', 1)->first();
         $comment_neu = $comments->where('thumb', '=', 2)->first();
         $comment_def = $comments->where('thumb', '=', 3)->first();
 
         if (Request::ajax()) {
             if ('avg' == $action) {
-                $rates = $this->rateRepository->getRatesAggregateByShowForUser($user->id, 'avg_rate DESC');
+                $rates = $this->rateRepositoryInterface->getRatesAggregateByShowForUser($user->id, 'avg_rate DESC');
             } elseif ('nb_rate' == $action) {
-                $rates = $this->rateRepository->getRatesAggregateByShowForUser($user->id, 'nb_rate DESC');
+                $rates = $this->rateRepositoryInterface->getRatesAggregateByShowForUser($user->id, 'nb_rate DESC');
             } elseif ('time' == $action) {
-                $rates = $this->rateRepository->getRatesAggregateByShowForUser($user->id, 'minutes DESC');
+                $rates = $this->rateRepositoryInterface->getRatesAggregateByShowForUser($user->id, 'minutes DESC');
             } else {
-                $rates = $this->rateRepository->getRatesAggregateByShowForUser($user->id, 'sh.name');
+                $rates = $this->rateRepositoryInterface->getRatesAggregateByShowForUser($user->id, 'sh.name');
             }
 
             return Response::json(View::make('users.rates_cards', ['rates' => $rates])->render());
         } else {
             $nb_minutes = 0;
-            $rates = $this->rateRepository->getRatesAggregateByShowForUser($user->id, 'sh.name');
+            $rates = $this->rateRepositoryInterface->getRatesAggregateByShowForUser($user->id, 'sh.name');
             foreach ($rates as $rate) {
                 $nb_minutes = $nb_minutes + $rate->minutes;
             }
@@ -156,11 +162,11 @@ class UserController extends Controller
      * @param string $filter
      * @param string $tri
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\JsonResponse|\Illuminate\View\View
+     * @return Factory|\Illuminate\Http\JsonResponse|View
      */
     public function getComments($userURL, $action = '', $filter = '', $tri = '')
     {
-        $user = $this->userRepository->getByURL($userURL);
+        $user = $this->userRepositoryInterface->getByURL($userURL);
 
         switch ($filter) {
             case 1:
@@ -191,21 +197,21 @@ class UserController extends Controller
 
         if (Request::ajax()) {
             if ('show' == $action) {
-                $comments = $this->commentRepository->getCommentsShowForProfile($user->id, 'show', $filter, $tri);
+                $comments = $this->commentRepositoryInterface->getCommentsShowForProfile($user->id, 'show', $filter, $tri);
             } elseif ('season' == $action) {
-                $comments = $this->commentRepository->getCommentsSeasonForProfile($user->id, 'season', $filter, $tri);
+                $comments = $this->commentRepositoryInterface->getCommentsSeasonForProfile($user->id, 'season', $filter, $tri);
             } elseif ('episode' == $action) {
-                $comments = $this->commentRepository->getCommentsEpisodeForProfile($user->id, 'episode', $filter, $tri);
+                $comments = $this->commentRepositoryInterface->getCommentsEpisodeForProfile($user->id, 'episode', $filter, $tri);
             }
 
             return Response::json(View::make('users.comments_cards', ['comments' => $comments])->render());
         } else {
-            $all_rates = $this->rateRepository->getAllRateByUserID($user->id);
+            $all_rates = $this->rateRepositoryInterface->getAllRateByUserID($user->id);
             $avg_user_rates = $all_rates->select(DB::raw('trim(round(avg(rate),2))+0 avg, count(*) nb_rates'))->first();
-            $time_passed_shows = getTimePassedOnShow($this->rateRepository, $user->id);
+            $time_passed_shows = getTimePassedOnShow($this->rateRepositoryInterface, $user->id);
 
-            $comments = $this->commentRepository->getCommentByUserIDThumbNotNull($user->id);
-            $nb_comments = $this->commentRepository->countCommentByUserIDThumbNotNull($user->id);
+            $comments = $this->commentRepositoryInterface->getCommentByUserIDThumbNotNull($user->id);
+            $nb_comments = $this->commentRepositoryInterface->countCommentByUserIDThumbNotNull($user->id);
             $comment_fav = $comments->where('thumb', '=', 1)->first();
             $comments_fav = $comment_fav ? $comment_fav->total : 0;
             $comment_neu = $comments->where('thumb', '=', 2)->first();
@@ -213,9 +219,9 @@ class UserController extends Controller
             $comment_def = $comments->where('thumb', '=', 3)->first();
             $comments_def = $comment_def ? $comment_def->total : 0;
 
-            $comments_shows = $this->commentRepository->getCommentsShowForProfile($user->id, 'show', $filter, $tri);
-            $comments_seasons = $this->commentRepository->getCommentsSeasonForProfile($user->id, 'season', $filter, $tri);
-            $comments_episodes = $this->commentRepository->getCommentsEpisodeForProfile($user->id, 'episode', $filter, $tri);
+            $comments_shows = $this->commentRepositoryInterface->getCommentsShowForProfile($user->id, 'show', $filter, $tri);
+            $comments_seasons = $this->commentRepositoryInterface->getCommentsSeasonForProfile($user->id, 'season', $filter, $tri);
+            $comments_episodes = $this->commentRepositoryInterface->getCommentsEpisodeForProfile($user->id, 'episode', $filter, $tri);
 
             $chart = new RateSummary();
             $chart
@@ -230,17 +236,17 @@ class UserController extends Controller
     }
 
     /**
-     * Affiche le formulaire de modification des paramètres.
+     * Get parameters form.
      *
      * @param $userURL
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      *
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * @throws ModelNotFoundException
      */
     public function getParameters($userURL)
     {
-        $user = $this->userRepository->getByURL($userURL);
+        $user = $this->userPackage->getUserByURL($userURL);
 
         return view('users.parameters', compact('user'));
     }
@@ -301,30 +307,30 @@ class UserController extends Controller
     /**
      * @param $user_url
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function getRanking($user_url)
     {
-        $user = $this->userRepository->getByURL($user_url);
+        $user = $this->userRepositoryInterface->getByURL($user_url);
 
-        $all_rates = $this->rateRepository->getAllRateByUserID($user->id);
+        $all_rates = $this->rateRepositoryInterface->getAllRateByUserID($user->id);
         $avg_user_rates = $all_rates->select(DB::raw('trim(round(avg(rate),2))+0 avg, count(*) nb_rates'))->first();
-        $time_passed_shows = getTimePassedOnShow($this->rateRepository, $user->id);
+        $time_passed_shows = getTimePassedOnShow($this->rateRepositoryInterface, $user->id);
 
-        $comments = $this->commentRepository->getCommentByUserIDThumbNotNull($user->id);
-        $nb_comments = $this->commentRepository->countCommentByUserIDThumbNotNull($user->id);
+        $comments = $this->commentRepositoryInterface->getCommentByUserIDThumbNotNull($user->id);
+        $nb_comments = $this->commentRepositoryInterface->countCommentByUserIDThumbNotNull($user->id);
         $comment_fav = $comments->where('thumb', '=', 1)->first();
         $comment_neu = $comments->where('thumb', '=', 2)->first();
         $comment_def = $comments->where('thumb', '=', 3)->first();
 
-        $top_shows = $this->rateRepository->getRankingShowsByUsers($user->id, 'DESC');
-        $flop_shows = $this->rateRepository->getRankingShowsByUsers($user->id, 'ASC');
-        $top_seasons = $this->rateRepository->getRankingSeasonsByUsers($user->id, 'DESC');
-        $flop_seasons = $this->rateRepository->getRankingSeasonsByUsers($user->id, 'ASC');
-        $top_episodes = $this->rateRepository->getRankingEpisodesByUsers($user->id, 'DESC');
-        $flop_episodes = $this->rateRepository->getRankingEpisodesByUsers($user->id, 'ASC');
-        $top_pilot = $this->rateRepository->getRankingPilotByUsers($user->id, 'DESC');
-        $flop_pilot = $this->rateRepository->getRankingPilotByUsers($user->id, 'ASC');
+        $top_shows = $this->rateRepositoryInterface->getRankingShowsByUsers($user->id, 'DESC');
+        $flop_shows = $this->rateRepositoryInterface->getRankingShowsByUsers($user->id, 'ASC');
+        $top_seasons = $this->rateRepositoryInterface->getRankingSeasonsByUsers($user->id, 'DESC');
+        $flop_seasons = $this->rateRepositoryInterface->getRankingSeasonsByUsers($user->id, 'ASC');
+        $top_episodes = $this->rateRepositoryInterface->getRankingEpisodesByUsers($user->id, 'DESC');
+        $flop_episodes = $this->rateRepositoryInterface->getRankingEpisodesByUsers($user->id, 'ASC');
+        $top_pilot = $this->rateRepositoryInterface->getRankingPilotByUsers($user->id, 'DESC');
+        $flop_pilot = $this->rateRepositoryInterface->getRankingPilotByUsers($user->id, 'ASC');
 
         return view('users.ranking', compact('user', 'avg_user_rates', 'time_passed_shows', 'nb_comments', 'comment_fav', 'comment_neu', 'comment_def', 'top_shows', 'flop_shows', 'top_seasons', 'flop_seasons', 'top_episodes', 'flop_episodes', 'top_pilot', 'flop_pilot'));
     }
@@ -334,23 +340,23 @@ class UserController extends Controller
      *
      * @param $user_url
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function getShows($user_url)
     {
-        $user = $this->userRepository->getByURL($user_url);
+        $user = $this->userRepositoryInterface->getByURL($user_url);
 
-        $all_rates = $this->rateRepository->getAllRateByUserID($user->id);
+        $all_rates = $this->rateRepositoryInterface->getAllRateByUserID($user->id);
         $avg_user_rates = $all_rates->select(DB::raw('trim(round(avg(rate),2))+0 avg, count(*) nb_rates'))->first();
-        $time_passed_shows = getTimePassedOnShow($this->rateRepository, $user->id);
+        $time_passed_shows = getTimePassedOnShow($this->rateRepositoryInterface, $user->id);
 
-        $comments = $this->commentRepository->getCommentByUserIDThumbNotNull($user->id);
-        $nb_comments = $this->commentRepository->countCommentByUserIDThumbNotNull($user->id);
+        $comments = $this->commentRepositoryInterface->getCommentByUserIDThumbNotNull($user->id);
+        $nb_comments = $this->commentRepositoryInterface->countCommentByUserIDThumbNotNull($user->id);
         $comment_fav = $comments->where('thumb', '=', 1)->first();
         $comment_neu = $comments->where('thumb', '=', 2)->first();
         $comment_def = $comments->where('thumb', '=', 3)->first();
 
-        $followed_shows = $this->showRepository->getShowFollowedByUser($user->id);
+        $followed_shows = $this->showRepositoryInterface->getShowFollowedByUser($user->id);
         $in_progress_shows = $followed_shows->where('state', '=', 1);
         $on_break_shows = $followed_shows->where('state', '=', 2);
         $completed_shows = $followed_shows->where('state', '=', 3);
@@ -370,7 +376,7 @@ class UserController extends Controller
         $inputs = array_merge($request->all(), ['user_id' => $request->user()->id]);
 
         if (Request::ajax()) {
-            $user = $this->userRepository->getByID($inputs['user_id']);
+            $user = $this->userRepositoryInterface->getByID($inputs['user_id']);
 
             if (!empty($inputs['shows'])) {
                 $show = explode(',', $inputs['shows']);
@@ -390,27 +396,27 @@ class UserController extends Controller
             }
 
             if (1 == $inputs['state']) {
-                $followed_shows = $this->showRepository->getShowFollowedByUser($user->id);
+                $followed_shows = $this->showRepositoryInterface->getShowFollowedByUser($user->id);
                 $in_progress_shows = $followed_shows->where('state', '=', 1);
 
                 return Response::json(View::make('users.shows_cards', ['shows' => $in_progress_shows, 'user' => $user])->render());
             } elseif (2 == $inputs['state']) {
-                $followed_shows = $this->showRepository->getShowFollowedByUser($user->id);
+                $followed_shows = $this->showRepositoryInterface->getShowFollowedByUser($user->id);
                 $on_break_shows = $followed_shows->where('state', '=', 2);
 
                 return Response::json(View::make('users.shows_cards', ['shows' => $on_break_shows, 'user' => $user])->render());
             } elseif (3 == $inputs['state']) {
-                $followed_shows = $this->showRepository->getShowFollowedByUser($user->id);
+                $followed_shows = $this->showRepositoryInterface->getShowFollowedByUser($user->id);
                 $completed_shows = $followed_shows->where('state', '=', 3);
 
                 return Response::json(View::make('users.shows_cards', ['shows' => $completed_shows, 'user' => $user])->render());
             } elseif (4 == $inputs['state']) {
-                $followed_shows = $this->showRepository->getShowFollowedByUser($user->id);
+                $followed_shows = $this->showRepositoryInterface->getShowFollowedByUser($user->id);
                 $abandoned_shows = $followed_shows->where('state', '=', 4);
 
                 return Response::json(View::make('users.shows_abandoned_cards', ['shows' => $abandoned_shows, 'user' => $user])->render());
             } elseif (5 == $inputs['state']) {
-                $followed_shows = $this->showRepository->getShowFollowedByUser($user->id);
+                $followed_shows = $this->showRepositoryInterface->getShowFollowedByUser($user->id);
                 $to_see_shows = $followed_shows->where('state', '=', 5);
 
                 return Response::json(View::make('users.shows_cards', ['shows' => $to_see_shows, 'user' => $user])->render());
@@ -430,7 +436,7 @@ class UserController extends Controller
         $inputs = array_merge($request->all(), ['user_id' => $request->user()->id]);
 
         if (Request::ajax()) {
-            $user = $this->userRepository->getByID($inputs['user_id']);
+            $user = $this->userRepositoryInterface->getByID($inputs['user_id']);
 
             if (!empty($inputs['shows'])) {
                 $show = explode(',', $inputs['shows']);
@@ -447,7 +453,7 @@ class UserController extends Controller
                 }
 
                 $user->shows()->attach($show, ['state' => $inputs['state'], 'message' => $message]);
-                $show = $this->showRepository->getShowByID($inputs['shows']);
+                $show = $this->showRepositoryInterface->getShowByID($inputs['shows']);
 
                 return Response::json(View::make('shows.actions_show', ['state_show' => $inputs['state'], 'show_id' => $inputs['shows'], 'completed_show' => $show->encours])->render());
             }
@@ -483,24 +489,24 @@ class UserController extends Controller
      *
      * @param $user_url
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function getPlanning($user_url)
     {
-        $user = $this->userRepository->getByURL($user_url);
+        $user = $this->userRepositoryInterface->getByURL($user_url);
 
-        $all_rates = $this->rateRepository->getAllRateByUserID($user->id);
+        $all_rates = $this->rateRepositoryInterface->getAllRateByUserID($user->id);
         $avg_user_rates = $all_rates->select(DB::raw('trim(round(avg(rate),2))+0 avg, count(*) nb_rates'))->first();
-        $time_passed_shows = getTimePassedOnShow($this->rateRepository, $user->id);
+        $time_passed_shows = getTimePassedOnShow($this->rateRepositoryInterface, $user->id);
 
-        $comments = $this->commentRepository->getCommentByUserIDThumbNotNull($user->id);
-        $nb_comments = $this->commentRepository->countCommentByUserIDThumbNotNull($user->id);
+        $comments = $this->commentRepositoryInterface->getCommentByUserIDThumbNotNull($user->id);
+        $nb_comments = $this->commentRepositoryInterface->countCommentByUserIDThumbNotNull($user->id);
         $comment_fav = $comments->where('thumb', '=', 1)->first();
         $comment_neu = $comments->where('thumb', '=', 2)->first();
         $comment_def = $comments->where('thumb', '=', 3)->first();
 
-        $episodes_in_progress = $this->userRepository->getEpisodePlanning($user->id, 1);
-        $episodes_on_break = $this->userRepository->getEpisodePlanning($user->id, 2);
+        $episodes_in_progress = $this->userRepositoryInterface->getEpisodePlanning($user->id, 1);
+        $episodes_on_break = $this->userRepositoryInterface->getEpisodePlanning($user->id, 2);
 
         $events = [];
 
@@ -589,14 +595,14 @@ class UserController extends Controller
 
     public function getNotifications($user_url)
     {
-        $user = $this->userRepository->getByURL($user_url);
+        $user = $this->userRepositoryInterface->getByURL($user_url);
 
-        $all_rates = $this->rateRepository->getAllRateByUserID($user->id);
+        $all_rates = $this->rateRepositoryInterface->getAllRateByUserID($user->id);
         $avg_user_rates = $all_rates->select(DB::raw('trim(round(avg(rate),2))+0 avg, count(*) nb_rates'))->first();
-        $time_passed_shows = getTimePassedOnShow($this->rateRepository, $user->id);
+        $time_passed_shows = getTimePassedOnShow($this->rateRepositoryInterface, $user->id);
 
-        $comments = $this->commentRepository->getCommentByUserIDThumbNotNull($user->id);
-        $nb_comments = $this->commentRepository->countCommentByUserIDThumbNotNull($user->id);
+        $comments = $this->commentRepositoryInterface->getCommentByUserIDThumbNotNull($user->id);
+        $nb_comments = $this->commentRepositoryInterface->countCommentByUserIDThumbNotNull($user->id);
         $comment_fav = $comments->where('thumb', '=', 1)->first();
         $comment_neu = $comments->where('thumb', '=', 2)->first();
         $comment_def = $comments->where('thumb', '=', 3)->first();

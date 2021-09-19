@@ -27,6 +27,11 @@ class AdminCommentController extends Controller
 {
     /**
      * AdminCommentController constructor.
+     * @param ShowRepository $showRepository
+     * @param CommentRepository $commentRepository
+     * @param EpisodeRepository $episodeRepository
+     * @param SeasonRepository $seasonRepository
+     * @param ArticleRepository $articleRepository
      */
     public function __construct(
         ShowRepository $showRepository,

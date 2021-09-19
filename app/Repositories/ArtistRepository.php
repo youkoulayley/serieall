@@ -22,8 +22,6 @@ class ArtistRepository
 
     /**
      * ArtistRepository constructor.
-     *
-     * @param \App\Repositories\ShowRepository $showRepository
      */
     public function __construct(
         Artist $artist,

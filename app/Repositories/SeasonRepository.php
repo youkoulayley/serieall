@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Interfaces\SeasonRepositoryInterface;
 use App\Models\Season;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Config;
 /**
  * Class SeasonRepository.
  */
-class SeasonRepository
+class SeasonRepository implements SeasonRepositoryInterface
 {
     public const RANKING_SEASONS_CACHE_KEY = 'RANKING_SEASONS_CACHE_KEY';
 

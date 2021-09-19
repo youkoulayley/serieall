@@ -292,8 +292,6 @@ class AdminShowController extends Controller
      * Update one show from TVDB.
      *
      * @param $show_id
-     * @param ShowRepository $show_repository
-     *
      * @return RedirectResponse
      */
     public function updateOneShowFromTVDB($show_id)

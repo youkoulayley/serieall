@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Interfaces\UserRepositoryInterface;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Class UserRepository.
  */
-class UserRepository
+class UserRepository implements UserRepositoryInterface
 {
     protected User $user;
 
@@ -30,8 +32,6 @@ class UserRepository
      * Get by Username.
      *
      * @param $username
-     *
-     * @throws ModelNotFoundException
      */
     public function getByUsername($username): User
     {
@@ -58,7 +58,7 @@ class UserRepository
     /**
      * List.
      */
-    public function list(): \Illuminate\Support\Collection
+    public function list(): Collection
     {
         return $this->user::orderBy('username')->get();
     }

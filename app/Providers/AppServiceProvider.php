@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Interfaces\UserRepositoryInterface;
+use App\Interfaces\UserServiceInterface;
+use App\Services\UserService;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
