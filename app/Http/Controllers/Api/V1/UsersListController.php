@@ -30,8 +30,7 @@ class UsersListController extends Controller
 
     public function index(): Response
     {
-        $users = $this->users
-            ::select('id', 'username')
+        $users = $this->users::select('id', 'username')
             ->orderBy('username');
 
         //Limit result, if needed

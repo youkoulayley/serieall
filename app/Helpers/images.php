@@ -44,15 +44,15 @@ class ResizeImage
                 // create a jpeg extension
                 $this->image = imagecreatefromjpeg($filename);
                 break;
-            // Image is a GIF
+                // Image is a GIF
             case 'image/gif':
                 $this->image = @imagecreatefromgif($filename);
                 break;
-            // Image is a PNG
+                // Image is a PNG
             case 'image/png':
                 $this->image = @imagecreatefrompng($filename);
                 break;
-            // Mime type not found
+                // Mime type not found
             default:
                 throw new Exception('File is not an image, please use another file type.', 1);
         }

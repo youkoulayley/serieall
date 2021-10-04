@@ -311,7 +311,7 @@ class CommentRepository
             ->whereNotNull('commentable_id')
             ->orderBy($tri)
             ->paginate(4, ['*'], $name_page)
-            ;
+        ;
     }
 
     /**
