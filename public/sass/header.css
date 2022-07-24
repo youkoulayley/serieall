@@ -9,7 +9,7 @@
   .ui.secondary.pointing.menu .item {
     color: #1B1C1D;
     margin: 2px 0 0;
-    height: 50px;
+    height: 100%;
     text-align: center; }
   .ui.secondary.pointing.menu img {
     margin: 2px 10px 2px; }
@@ -19,6 +19,8 @@
   .ui.secondary.pointing.menu .item:hover,
   .ui.secondary.pointing.menu .active.item:hover {
     border-color: #1074b2; }
+  .ui.secondary.pointing.menu .slogan:hover {
+    border-color: #FFFFFF; }
 
 .ui.pointing.dropdown.link .item {
   border-bottom: none;
@@ -44,5 +46,7 @@
 
 .ui.vertical.menu .active.item {
   background-color: #1074b2; }
+  .ui.vertical.menu .active.item .showDropdown {
+    margin: 0 auto; }
 
 /*# sourceMappingURL=header.css.map */

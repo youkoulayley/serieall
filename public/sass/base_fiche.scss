@@ -429,18 +429,3 @@
 .ListAll { // List All buttons
   margin: 1em !important;
 }
-
-.chartMean { // Remove padding for charts
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
-
-.reactions { // Add padding and align text to left for reactions
-  padding-left: 3em;
-  text-align: left;
-}
-
-.PaginateRow .center.aligned { // Center aligned the pagination menu
-  margin-top: 2em;
-  text-align: center;
-}
