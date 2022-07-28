@@ -1,14 +1,14 @@
-@if($comments->count() > 0)
-    @if($comments[0]->commentable_type == 'App\Models\Show')
+@if($data["comments"]->count() > 0)
+    @if($data["comments"][0]->commentable_type == 'App\Models\Show')
         <?php $type_comment = "Show"; ?>
-    @elseif($comments[0]->commentable_type == 'App\Models\Season')
+    @elseif($data["comments"][0]->commentable_type == 'App\Models\Season')
         <?php $type_comment = "Season"; ?>
     @else
         <?php $type_comment = "Episode"; ?>
     @endif
 
     <div id="cardsRates" class="ui four stackable cards">
-        @foreach($comments as $comment)
+        @foreach($data["comments"] as $comment)
             <div class="card">
                 <div class="image">
                     @if($comment->commentable_type == 'App\Models\Show')
@@ -57,7 +57,7 @@
     </div>
 
     <div id="paginate{{ $type_comment }}" class="ui center aligned p-1">
-        {{ $comments->links() }}
+        {{ $data["comments"]->links() }}
     </div>
 @else
     @component('components.message_simple', ['type' => 'info'])

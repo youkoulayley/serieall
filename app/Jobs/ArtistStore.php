@@ -22,8 +22,11 @@ class ArtistStore implements ShouldQueue
     use SerializesModels;
 
     protected $actorName;
+
     protected $actorRole;
+
     protected $show;
+
     protected $listLogID;
 
     /**

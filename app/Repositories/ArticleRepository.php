@@ -210,7 +210,7 @@ class ArticleRepository
      */
     public function getLast6Articles()
     {
-        return Cache::rememberForever(ArticleRepository::LAST_6_ARTICLES_CACHE_KEY, function () {
+        return Cache::rememberForever(self::LAST_6_ARTICLES_CACHE_KEY, function () {
             return $this->article
                 ->where('state', '=', 1)
                 ->orderBy('published_at', 'desc')

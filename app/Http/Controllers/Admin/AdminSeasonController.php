@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 class AdminSeasonController extends Controller
 {
     protected $seasonRepository;
+
     protected $showRepository;
 
     /**

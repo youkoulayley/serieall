@@ -31,7 +31,6 @@ class ArtistCreateRequest extends FormRequest
         return [
             'artists.*.image' => 'image',
             'artists.*.name' => 'required|max:255',
-            'artists.*.role' => 'required|max:255',
-        ];
+            'artists.*.role' => 'required|max:255', ];
     }
 }

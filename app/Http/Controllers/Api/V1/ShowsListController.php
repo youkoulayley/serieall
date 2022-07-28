@@ -16,6 +16,7 @@ use Youkoulayley\ApiHandler\Facades\ApiHandler;
 class ShowsListController extends Controller
 {
     use Helpers;
+
     protected $shows;
 
     /**

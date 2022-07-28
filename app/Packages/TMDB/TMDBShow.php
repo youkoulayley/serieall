@@ -12,14 +12,23 @@ use App\Models\Show;
 class TMDBShow
 {
     public Show $show;
+
     public string $poster;
+
     public string $banner;
+
     public array $genres;
+
     public array $creators;
+
     public array $nationalities;
+
     public array $channels;
+
     public array $actors;
+
     public int $seasons_count;
+
     public int $episodes_count;
 
     public function __construct(

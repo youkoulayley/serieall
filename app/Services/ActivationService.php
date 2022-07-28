@@ -15,7 +15,9 @@ use Illuminate\Mail\Mailer;
 class ActivationService
 {
     protected $mailer;
+
     protected $activationRepo;
+
     private $resendAfter = 24;
 
     /**
@@ -32,7 +34,7 @@ class ActivationService
      */
     public function sendActivationMail(User $user)
     {
-        if ($user->activated || !$this->shouldSend($user)) {
+        if ($user->activated || ! $this->shouldSend($user)) {
             return;
         }
 

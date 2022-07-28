@@ -2,12 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Show;
-use App\Models\Temp;
 use App\Packages\TMDB\TMDBController;
-use Carbon\Carbon;
-use ErrorException;
-use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -39,7 +34,7 @@ class ShowUpdateFromTMDB extends Job implements ShouldQueue
             dispatch(new OneShowUpdateFromTMDB($id));
         }
 
-        Log::info("ShowUpdateFromTMDB: Launched $launched jobs.", ["ids" => $ids]);
+        Log::info("ShowUpdateFromTMDB: Launched $launched jobs.", ['ids' => $ids]);
 
         Log::debug('ShowUpdateFromTMDB: Enf of job.');
     }

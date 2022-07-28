@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 class AdminEpisodeController extends Controller
 {
     protected $episodeRepository;
+
     protected $seasonRepository;
 
     /**

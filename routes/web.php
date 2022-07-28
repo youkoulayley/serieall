@@ -17,6 +17,7 @@ declare(strict_types=1);
     Home
 */
 
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', 'HomeController@index')->name('home');
@@ -63,19 +64,35 @@ Route::view('/contact', 'pages.contact')->name('contact');
 Route::post('sendContact', 'ContactController@sendContact')->name('contact.send');
 
 /*
-    Partie Utilisateurs
+    Users Routes
 */
-Route::get('utilisateurs', 'UserController@index')->name('users.index');
-Route::get('profil/{user}', 'UserController@getProfile')->name('user.profile');
-Route::get('profil/{user}/notes/{action?}', 'UserController@getRates')->name('user.profile.rates');
+Route::get('utilisateurs', [UserController::class, 'index'])
+    ->name('users.index');
+
+Route::prefix('profil')->group(function () {
+    Route::get('{user}', [UserController::class, 'getProfile'])
+        ->name('user.profile');
+    Route::get('{user}/notes/{sort?}', [UserController::class, 'getRates'])
+        ->name('user.profile.rates');
+
+    Route::get('{user}/parametres', [UserController::class, 'getParameters'])
+        ->name('user.profile.parameters')
+        ->middleware('amithisuser');
+
+    Route::middleware('auth')->group(function () {
+        Route::post('password', 'UserController@changePassword')
+            ->name('user.profile.changePassword');
+
+        Route::post('info', 'UserController@changeInfo')
+            ->name('user.profile.changeInfo');
+    });
+});
+
 Route::get('profil/{user}/avis/{action?}/{filter?}/{tri?}', 'UserController@getComments')->name('user.profile.comments');
 Route::get('profil/{user}/series', 'UserController@getShows')->name('user.profile.shows');
 Route::get('profil/{user}/classements', 'UserController@getRanking')->name('user.profile.ranking');
 Route::get('profil/{user}/planning', 'UserController@getPlanning')->name('user.profile.planning')->middleware('amithisuser');
 Route::get('profil/{user}/notifications', 'UserController@getNotifications')->name('user.profile.notifications')->middleware('amithisuser');
-Route::get('profil/{user}/parametres', 'UserController@getParameters')->name('user.profile.parameters')->middleware('amithisuser');
-Route::post('changepassword', 'UserController@changePassword')->name('user.changepassword')->middleware('auth');
-Route::post('changeinfos', 'UserController@changeInfos')->name('user.changeinfos')->middleware('auth');
 
 /*
     Partie Notifications
@@ -209,9 +226,6 @@ Route::group(['middleware' => 'basemanager'], function () {
     });
 
     Route::group(['middleware' => 'admin'], function () {
-        Route::get('admin/tmdb', 'Admin\AdminShowTMDB@pouet');
-        Route::get('admin/tmdb/add/{id}', 'Admin\AdminShowTMDB@add');
-
         /* USERS */
         Route::get('admin/users/index/{user}', 'Admin\AdminUserController@getUser')->name('admin.users.index.getUser');
         Route::get('admin/users', 'Admin\AdminUserController@index')->name('admin.users.index');

@@ -3,11 +3,17 @@
 class ResizeImage
 {
     private $ext;
+
     private $image;
+
     private $newImage;
+
     private $origWidth;
+
     private $origHeight;
+
     private $resizeWidth;
+
     private $resizeHeight;
 
     /**
@@ -183,7 +189,7 @@ function downloadImage($url, $name, $type)
     $originalFile = public_path('/images/original/'.$imageName);
 
     $fileHeaders = get_headers($url);
-    if (!$fileHeaders || 'HTTP/1.1 404 Not Found' == $fileHeaders[0] || 'HTTP/1.1 403 Forbidden' == $fileHeaders[0]) {
+    if (! $fileHeaders || 'HTTP/1.1 404 Not Found' == $fileHeaders[0] || 'HTTP/1.1 403 Forbidden' == $fileHeaders[0]) {
         Log::info('Images : No image for '.$imageName.'.');
     } else {
         copy($url, $originalFile);

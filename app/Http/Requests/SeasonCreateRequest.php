@@ -30,7 +30,6 @@ class SeasonCreateRequest extends FormRequest
     {
         return [
             'seasons.*.name' => 'required|numeric',
-            'seasons.*.ba' => 'max:255',
-        ];
+            'seasons.*.ba' => 'max:255', ];
     }
 }

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('pageTitle', 'Profil de ' . $user->username)
+@section('pageTitle', 'Profil de ' . $data["user"]->username)
 
 @section('content')
     <div class="ui ten wide column">
@@ -10,33 +10,33 @@
                     <i class="user icon"></i>
                     Profil
                 </a>
-                <a class="item" href="{{ route('user.profile.rates', $user->user_url ) }}">
+                <a class="item" href="{{ route('user.profile.rates', $data["user"]->user_url ) }}">
                     <i class="star icon"></i>
                     Notes
                 </a>
-                <a class="item" href="{{ route('user.profile.comments', $user->user_url ) }}">
+                <a class="item" href="{{ route('user.profile.comments', $data["user"]->user_url ) }}">
                     <i class="comment icon"></i>
                     Avis
                 </a>
-                <a class="item" href="{{ route('user.profile.shows', $user->user_url ) }}">
+                <a class="item" href="{{ route('user.profile.shows', $data["user"]->user_url ) }}">
                     <i class="tv icon"></i>
                     Séries
                 </a>
-                <a class="item" href="{{ route('user.profile.ranking', $user->user_url ) }}">
+                <a class="item" href="{{ route('user.profile.ranking', $data["user"]->user_url ) }}">
                     <i class="ordered list icon"></i>
                     Classement
                 </a>
                 @if(Auth::check())
-                    @if($user->username == Auth::user()->username)
-                        <a class="item" href="{{ route('user.profile.planning', $user->user_url ) }}">
+                    @if($data["user"]->username == Auth::user()->username)
+                        <a class="item" href="{{ route('user.profile.planning', $data["user"]->user_url ) }}">
                             <i class="calendar icon"></i>
                             Mon planning
                         </a>
-                        <a class="item" href="{{ route('user.profile.notifications', $user->user_url ) }}">
+                        <a class="item" href="{{ route('user.profile.notifications', $data["user"]->user_url ) }}">
                             <i class="alarm icon"></i>
                             Notifications
                         </a>
-                        <a class="item" href="{{ route('user.profile.parameters', $user->user_url ) }}">
+                        <a class="item" href="{{ route('user.profile.parameters', $data["user"]->user_url ) }}">
                             <i class="settings icon"></i>
                             Paramètres
                         </a>
@@ -52,13 +52,13 @@
                         <div class="ui items">
                             <div class="item">
                         <span class="ui tiny image">
-                            <img src="{{ Gravatar::src($user->email) }}" alt="Avatar de {{$user->username}}">
+                            <img src="{{ Gravatar::src($data["user"]->email) }}" alt="Avatar de {{$data["user"]->username}}">
                         </span>
                                 <div class="content">
-                                    <a class="header">{{ $user->username }}</a><br />
-                                    {!! roleUser($user->role) !!}
+                                    <a class="header">{{ $data["user"]->username }}</a><br />
+                                    {!! roleUser($data["user"]->role) !!}
                                     <div class="description">
-                                        <p>"<i>{{ $user->edito }}"</i></p>
+                                        <p>"<i>{{ $data["user"]->edito }}"</i></p>
                                     </div>
                                 </div>
                             </div>
@@ -66,7 +66,7 @@
                         <div class="ui statistic">
                             <div class="label">
                                 <i class="tv icon"></i>
-                                {{ $time_passed_shows }} devant l'écran
+                                {{ $data["watchTime"] }} devant l'écran
                             </div>
                         </div>
                     </div>
@@ -77,7 +77,7 @@
                                     Moyenne
                                 </div>
                                 <div class="value">
-                                    {!! affichageNote($avg_user_rates->avg) !!}
+                                    {!! affichageNote($data["ratesSummary"]["avgRate"]) !!}
                                 </div>
                             </div>
                             <div class="ui statistic">
@@ -85,7 +85,7 @@
                                     Nombre de notes
                                 </div>
                                 <div class="value">
-                                    {{$avg_user_rates->nb_rates}}
+                                    {{$data["ratesSummary"]["ratesCount"]}}
                                 </div>
                             </div>
                             <div class="ui statistic">
@@ -93,7 +93,7 @@
                                     Nombre d'avis
                                 </div>
                                 <div class="value">
-                                    {{$nb_comments}}
+                                    {{$data["commentsSummary"]["count"]}}
                                 </div>
                             </div>
                         </div>
@@ -102,11 +102,7 @@
                             <div class="statistic">
                                 <div class="value">
                                     <i class="green smile icon"></i>
-                                    @if($comment_fav)
-                                        {{ $comment_fav->total }}
-                                    @else
-                                        0
-                                    @endif
+                                    {{$data["commentsSummary"]["positiveCount"]}}
                                 </div>
                                 <div class="label">
                                     Favorables
@@ -115,11 +111,7 @@
                             <div class="statistic">
                                 <div class="value">
                                     <i class="grey meh icon"></i>
-                                    @if($comment_neu)
-                                        {{ $comment_neu->total }}
-                                    @else
-                                        0
-                                    @endif
+                                    {{$data["commentsSummary"]["neutralCount"]}}
                                 </div>
                                 <div class="label">
                                     Neutres
@@ -128,11 +120,7 @@
                             <div class="statistic">
                                 <div class="value">
                                     <i class="red frown icon"></i>
-                                    @if($comment_def)
-                                        {{ $comment_def->total }}
-                                    @else
-                                        0
-                                    @endif
+                                    {{$data["commentsSummary"]["negativeCount"]}}
                                 </div>
                                 <div class="label">
                                     Défavorables
@@ -143,24 +131,24 @@
                 </div>
             </div>
 
-            @if(!empty($user->facebook) || !empty($user->twitter) || !empty($user->website))
+            @if(!empty($data["user"]->facebook) || !empty($data["user"]->twitter) || !empty($data["user"]->website))
                 <h3>Ses liens :</h3>
-                @if(!empty($user->facebook))
-                    <button class="ui facebook button" onclick="window.location.href='https://www.facebook.com/{{ $user->facebook }}'">
+                @if(!empty($data["user"]->facebook))
+                    <button class="ui facebook button" onclick="window.location.href='https://www.facebook.com/{{ $data["user"]->facebook }}'">
                         <i class="facebook icon"></i>
                         Facebook
                     </button>
                 @endif
 
-                @if(!empty($user->twitter))
-                    <button class="ui twitter button" onclick="window.location.href='https://www.twitter.com/{{ $user->twitter }}'">
+                @if(!empty($data["user"]->twitter))
+                    <button class="ui twitter button" onclick="window.location.href='https://www.twitter.com/{{ $data["user"]->twitter }}'">
                         <i class="twitter icon"></i>
                         Twitter
                     </button>
                 @endif
 
-                @if(!empty($user->website))
-                    <button class="ui grey button" onclick="window.location.href='{{ $user->website }}'">
+                @if(!empty($data["user"]->website))
+                    <button class="ui grey button" onclick="window.location.href='{{ $data["user"]->website }}'">
                         <i class="at icon"></i>
                         Site Internet
                     </button>
@@ -170,12 +158,12 @@
 
         <div class="ui grid stackable">
             <div class="eight wide column">
-                @if($user->articles->count() > 0)
+                @if($data["user"]->articles->count() > 0)
                     <div id="LeftBlock" class="ui segment profile">
                         <h1>Ses derniers articles</h1>
 
                         <div class="ui items">
-                            @foreach($user->articles as $article)
+                            @foreach($data["user"]->articles as $article)
                                 <div class="article item">
                                     <div class="ol-{{ colorCategory($article->category_id) }} image article">
                                         <img src="{{ chooseImage(pathinfo($article->image)['filename'], "poster", "120_120") }}" alt="">
@@ -191,13 +179,13 @@
                                         </div>
                                         <div class="extra">
                                             Par
-                                            @foreach($article->users as $user)
+                                            @foreach($article->users as $data["user"])
                                                 @if($loop->last)
-                                                    <img class="ui avatar image" src="{{ Gravatar::src($user->email) }}" alt="Avatar de {{$user->username}}">
-                                                    <span>{{ $user->username }}</span>
+                                                    <img class="ui avatar image" src="{{ Gravatar::src($data["user"]->email) }}" alt="Avatar de {{$data["user"]->username}}">
+                                                    <span>{{ $data["user"]->username }}</span>
                                                 @else
-                                                    <img class="ui avatar image" src="{{ Gravatar::src($user->email) }}" alt="Avatar de {{$user->username}}">
-                                                    <span>{{ $user->username }}</span>,
+                                                    <img class="ui avatar image" src="{{ Gravatar::src($data["user"]->email) }}" alt="Avatar de {{$data["user"]->username}}">
+                                                    <span>{{ $data["user"]->username }}</span>,
                                                 @endif
                                             @endforeach
 
@@ -217,7 +205,7 @@
             <div class="eight wide column">
                 <div id="RightBlock" class="ui segment profile">
                     <h1>Ses dernières notes</h1>
-                    @foreach($rates as $rate)
+                    @foreach($data["lastRates"] as $rate)
                         {{ $rate['user']['username'] }} a mis {{ $rate->rate }} à <a href="{{ route('show.fiche', $rate->episode->show['show_url'] ) }}">{{ $rate->episode->show['name'] }}</a>/{!! afficheEpisodeName($rate->episode, true, true) !!} <br/>
                     @endforeach
                 </div>

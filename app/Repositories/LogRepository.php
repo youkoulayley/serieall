@@ -14,6 +14,7 @@ use Carbon\Carbon;
 class LogRepository
 {
     protected $log;
+
     protected $list_log;
 
     /**

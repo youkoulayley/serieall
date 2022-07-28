@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 class ActivationRepository
 {
     protected $db;
+
     protected $table = 'user_activations';
 
     /**

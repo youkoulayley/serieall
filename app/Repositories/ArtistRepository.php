@@ -17,13 +17,13 @@ class ArtistRepository
      * @var Artist
      */
     protected $artist;
+
     protected $show;
+
     protected $showRepository;
 
     /**
      * ArtistRepository constructor.
-     *
-     * @param \App\Repositories\ShowRepository $showRepository
      */
     public function __construct(
         Artist $artist,

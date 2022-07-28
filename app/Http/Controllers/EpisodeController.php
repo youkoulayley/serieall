@@ -22,11 +22,17 @@ use Illuminate\Support\Facades\View;
 class EpisodeController extends Controller
 {
     use FormatShowHeaderTrait;
+
     protected $episodeRepository;
+
     protected $seasonRepository;
+
     protected $showRepository;
+
     protected $commentRepository;
+
     protected $rateRepository;
+
     protected $articleRepository;
 
     /**
@@ -83,7 +89,7 @@ class EpisodeController extends Controller
         // Get Show
         $show = $this->showRepository->getShowByURL($showURL);
 
-        if (!is_null($show)) {
+        if (! is_null($show)) {
             $showInfo = $this->formatForShowHeader($show);
 
             $seasonInfo = $this->seasonRepository->getSeasonEpisodesBySeasonNameAndShowID($showInfo['show']->id, $seasonName);

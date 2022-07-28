@@ -15,7 +15,9 @@ class DatabaseNotification extends Notification
     use Queueable;
 
     private $title;
+
     private $url_see_notification;
+
     private $user;
 
     /**

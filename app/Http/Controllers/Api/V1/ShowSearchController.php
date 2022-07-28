@@ -23,7 +23,7 @@ class ShowSearchController extends Controller
 
     public function index(): Response
     {
-        if (!is_null(Request::input('_q'))) {
+        if (! is_null(Request::input('_q'))) {
             //Retrieve search request and split in array of word
             $this->searchQueryWordArray = explode(' ', Request::input('_q'));
 

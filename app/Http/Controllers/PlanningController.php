@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 
 use App\Repositories\EpisodeRepository;
 use Calendar;
-use Illuminate\Support\Facades\View;
 
 /**
  * Class ArticleController.

@@ -19,8 +19,11 @@ use Illuminate\Support\Facades\View;
 class SeasonController extends Controller
 {
     protected $showRepository;
+
     protected $seasonRepository;
+
     protected $commentRepository;
+
     protected $articleRepository;
 
     /**

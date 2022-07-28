@@ -165,7 +165,6 @@ return [
         Collective\Html\HtmlServiceProvider::class,
         BroadcastServiceProvider::class,
         Illuminate\Notifications\NotificationServiceProvider::class,
-        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
         Thomaswelton\LaravelGravatar\LaravelGravatarServiceProvider::class,
         Dingo\Api\Provider\LaravelServiceProvider::class,
         Youkoulayley\ApiHandler\ApiHandlerServiceProvider::class,
@@ -181,6 +180,17 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\ComposerServiceProvider::class,
+
+        /*
+         * Custom Service Providers...
+         */
+        App\Providers\CommentRepositoryProvider::class,
+        App\Providers\RateRepositoryProvider::class,
+        App\Providers\ShowRepositoryProvider::class,
+        App\Providers\SeasonRepositoryProvider::class,
+        App\Providers\EpisodeRepositoryProvider::class,
+        App\Providers\UserRepositoryProvider::class,
+        App\Providers\UserServiceProvider::class,
 
         /*
          * Allow authenticate with md5 password
@@ -244,5 +254,6 @@ return [
         'Share' => Jorenvh\Share\ShareFacade::class,
         'Captcha' => Mews\Captcha\Facades\Captcha::class,
         'PodcastFeed' => Youkoulayley\PodcastFeed\Facades\PodcastFeed::class,
+        'Serieall' => App\Serieall::class,
     ],
 ];

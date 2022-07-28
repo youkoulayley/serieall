@@ -25,8 +25,8 @@ class SeasonFactory extends Factory
         $faker = $this->faker;
 
         return [
-            'thetvdb_id' => $faker->randomDigit(),
-            'name' => $faker->randomDigit(),
+            'tmdb_id' => $faker->unique()->randomNumber(5),
+            'name' => $faker->unique()->randomDigit(),
             'ba' => $faker->name,
             'moyenne' => 15,
             'nbnotes' => 2,

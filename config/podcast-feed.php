@@ -22,7 +22,7 @@ return [
         'category' => 'TV & Film',
         'explicit' => 'no',
         'language' => 'fr-fr',
-        'copyright' => date("Y") . ' Série-All',
+        'copyright' => date('Y').' Série-All',
     ],
 
 ];

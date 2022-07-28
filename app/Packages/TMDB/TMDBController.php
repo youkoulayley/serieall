@@ -2,10 +2,7 @@
 
 namespace App\Packages\TMDB;
 
-use App\Models\Channel;
 use App\Models\Episode;
-use App\Models\Genre;
-use App\Models\Nationality;
 use App\Models\Season;
 use App\Models\Show;
 use Illuminate\Support\Facades\Log;
@@ -74,10 +71,11 @@ class TMDBController
      */
     public function findShow(int $id): int
     {
-        $result = $this->client->getFindApi()->findBy($id, ["external_source" => "tvdb_id"]);
+        $result = $this->client->getFindApi()->findBy($id, ['external_source' => 'tvdb_id']);
 
         if (count($result['tv_results']) < 1) {
-            Log::Error($id . " show not found on tmdb");
+            Log::Error($id.' show not found on tmdb');
+
             return 0;
         }
 
@@ -92,10 +90,11 @@ class TMDBController
      */
     public function findSeason(int $id): int
     {
-        $result = $this->client->getFindApi()->findBy($id, ["external_source" => "tvdb_id"]);
+        $result = $this->client->getFindApi()->findBy($id, ['external_source' => 'tvdb_id']);
 
         if (count($result['tv_season_results']) < 1) {
-            Log::Error($id . " season not found on tmdb");
+            Log::Error($id.' season not found on tmdb');
+
             return 0;
         }
 
@@ -110,10 +109,11 @@ class TMDBController
      */
     public function findEpisode(int $id): int
     {
-        $result = $this->client->getFindApi()->findBy($id, ["external_source" => "tvdb_id"]);
+        $result = $this->client->getFindApi()->findBy($id, ['external_source' => 'tvdb_id']);
 
         if (count($result['tv_episode_results']) < 1) {
-            Log::Error($id . " episode not found on tmdb");
+            Log::Error($id.' episode not found on tmdb');
+
             return 0;
         }
 
@@ -145,8 +145,8 @@ class TMDBController
                 'encours' => $TMDBShowEN['in_production'] ? 1 : 0,
                 'diffusion_us' => $TMDBShowEN['first_air_date'],
             ]),
-            config("tmdb.imageURL") . "/w780" . $TMDBShowEN["poster_path"],
-            config("tmdb.imageURL") . "/w1280" . $TMDBShowEN["backdrop_path"],
+            config('tmdb.imageURL').'/w780'.$TMDBShowEN['poster_path'],
+            config('tmdb.imageURL').'/w1280'.$TMDBShowEN['backdrop_path'],
             $genres,
             $creators,
             $nationalities,
@@ -168,7 +168,7 @@ class TMDBController
                 continue;
             }
 
-            array_push($listActors, new TMDBArtist($actor['name'], $actor['character'], config('tmdb.imageURL'). '/w500' . $actor['profile_path']));
+            array_push($listActors, new TMDBArtist($actor['name'], $actor['character'], config('tmdb.imageURL').'/w500'.$actor['profile_path']));
         }
 
         return $listActors;
@@ -180,7 +180,7 @@ class TMDBController
         $listSeasons = [];
 
         // Don't get specials episodes (i starts at 1)
-        for ($i = 1; $i <= $seasonsCount; ++$i) {
+        for ($i = 1; $i <= $seasonsCount; $i++) {
             $TMDBSeasonEN = $this->client->getTvSeasonApi()->getSeason($id, $i, ['language' => 'en']);
             $TMDBSeasonFR = $this->client->getTvSeasonApi()->getSeason($id, $i, ['language' => 'fr']);
 
@@ -214,10 +214,10 @@ class TMDBController
 
         array_push($changes, ...$changesFiltered);
 
-        $totalPages = $tmdbChanges["total_pages"];
+        $totalPages = $tmdbChanges['total_pages'];
 
         for ($i = 2; $i <= $totalPages; $i++) {
-            $changes = $this->client->getChangesApi()->getTvChanges(["page" => $i]);
+            $changes = $this->client->getChangesApi()->getTvChanges(['page' => $i]);
             $changesFiltered = $this->appendChanges($tmdbChanges);
 
             array_push($changes, ...$changesFiltered);
@@ -230,9 +230,9 @@ class TMDBController
     {
         $ids = [];
 
-        foreach ($tmdbChanges["results"] as $change) {
-            if (Show::where("tmdb_id", $change["id"])->exists()) {
-                array_push($ids, $change["id"]);
+        foreach ($tmdbChanges['results'] as $change) {
+            if (Show::where('tmdb_id', $change['id'])->exists()) {
+                array_push($ids, $change['id']);
             }
         }
 
@@ -245,8 +245,8 @@ class TMDBController
         $listEpisodes = [];
 
         foreach ($episodesEN as $i => $episode) {
-            $image = "";
-            if ($episode["still_path"] != "") {
+            $image = '';
+            if ($episode['still_path'] != '') {
                 $image = config('tmdb.imageURL').'/w500'.$episode['still_path'];
             }
 
@@ -301,7 +301,7 @@ class TMDBController
     {
         $listArtists = [];
         foreach ($artists as $artist) {
-            if (!isset($artist['job']) || !isset($artist["name"]) || $artist['job'] != $filter) {
+            if (! isset($artist['job']) || ! isset($artist['name']) || $artist['job'] != $filter) {
                 continue;
             }
 
@@ -316,7 +316,7 @@ class TMDBController
     {
         $listArtists = [];
         foreach ($artists as $artist) {
-            if (!isset($artist['known_for_department']) || $artist['known_for_department'] != 'Acting') {
+            if (! isset($artist['known_for_department']) || $artist['known_for_department'] != 'Acting') {
                 continue;
             }
 

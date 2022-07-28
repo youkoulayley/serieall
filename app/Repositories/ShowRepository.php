@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Interfaces\ShowRepositoryInterface;
 use App\Jobs\ShowAddFromTMDB;
-use App\Jobs\AddTMDBID;
 use App\Jobs\ShowAddManually;
 use App\Jobs\ShowDelete;
 use App\Jobs\ShowUpdateManually;
 use App\Models\Comment;
 use App\Models\Show;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -21,31 +22,41 @@ use Illuminate\Support\Str;
 /**
  * Class ShowRepository.
  */
-class ShowRepository
+class ShowRepository implements ShowRepositoryInterface
 {
     /** Constant for cache*/
     public const LAST_ADDED_SHOW_CACHE_KEY = 'LAST_ADDED_SHOW_CACHE_KEY';
-    public const RANKING_SHOWS_CACHE_KEY = 'RANKING_SHOWS_CACHE_KEY';
-    public const THUMB_SHOW_CACHE_KEY = 'THUMB_SHOW_CACHE_KEY';
 
-    protected $show;
-    protected $seasonRepository;
-    protected $articleRepository;
+    public const RANKING_SHOWS_CACHE_KEY = 'RANKING_SHOWS_CACHE_KEY';
+
+    public const THUMB_SHOW_CACHE_KEY = 'THUMB_SHOW_CACHE_KEY';
 
     /**
      * ShowRepository constructor.
-     *
-     * @param \App\Repositories\SeasonRepository $seasonRepository
      */
-    public function __construct(
-        Show $show,
-        SeasonRepository $seasonRepository,
-        ArticleRepository $articleRepository
-    ) {
-        $this->show = $show;
-        $this->seasonRepository = $seasonRepository;
-        $this->articleRepository = $articleRepository;
+    public function __construct()
+    {
     }
+
+    /**
+     * Get Show followed by user.
+     *
+     * @param int $userID
+     * @return Collection
+     */
+    public function getShowFollowedByUser(int $userID): Collection
+    {
+        return Show::join('show_user', 'shows.id', '=', 'show_user.show_id')
+            ->join('users', 'users.id', '=', 'show_user.user_id')
+            ->orderBy('shows.name')
+            ->where('users.id', '=', $userID)
+            ->select(DB::raw('shows.id as sid, users.id as uid, shows.name as name, shows.show_url as show_url, show_user.state as state, show_user.message as message'))
+            ->get();
+    }
+
+    // ***********************
+    //    TODO
+    // ***********************
 
     /**
      * On vérifie si la série n'a pas déjà été récupérée.
@@ -56,10 +67,11 @@ class ShowRepository
      */
     public function createShowJob($inputs): bool
     {
-        $checkIDTMDB = $this->show::where('tmdb_id', $inputs['tmdb_id'])->first();
+        $checkIDTMDB = Show::where('tmdb_id', $inputs['tmdb_id'])->first();
 
         if ($checkIDTMDB === null) {
             dispatch(new ShowAddFromTMDB($inputs));
+
             return true;
         }
 
@@ -76,7 +88,7 @@ class ShowRepository
     public function createManuallyShowJob($inputs): bool
     {
         $URLShow = Str::slug($inputs['name']);
-        $verifURLShow = $this->show::where('show_url', $URLShow)->first();
+        $verifURLShow = Show::where('show_url', $URLShow)->first();
 
         if (null === $verifURLShow) {
             dispatch(new ShowAddManually($inputs));
@@ -135,21 +147,21 @@ class ShowRepository
                 //Show not found -> empty array
                 return [];
             }
-            $seasons = $this->seasonRepository->getSeasonsCountEpisodesForShowByID($show->id);
+            $seasons = (new SeasonRepository())->getSeasonsCountEpisodesForShowByID($show->id);
         } elseif ('show.details' === Route::current()->getName()) {
             $show = $this->getShowDetailsByURL($show_url);
             if (is_null($show)) {
                 //Show not found -> empty array
                 return [];
             }
-            $seasons = $this->seasonRepository->getSeasonsCountEpisodesForShowByID($show->id);
+            $seasons = (new SeasonRepository())->getSeasonsCountEpisodesForShowByID($show->id);
         } else {
             $show = $this->getShowByURLWithSeasonsAndEpisodes($show_url);
             $seasons = [];
         }
         $articles = [];
 
-        $nbcomments = Cache::rememberForever(ShowRepository::THUMB_SHOW_CACHE_KEY.$show->id, function () use ($show) {
+        $nbcomments = Cache::rememberForever(self::THUMB_SHOW_CACHE_KEY.$show->id, function () use ($show) {
             return Comment::groupBy('thumb')
                 ->select('thumb', \DB::raw('count(*) as count_thumb'))
                 ->where('commentable_id', '=', $show->id)
@@ -199,20 +211,20 @@ class ShowRepository
      */
 
     /**
-     * Récupère la liste des séries avec le compte des saisons et des épisodes, la ou les nationalités, et la ou les chaînes.
+     * Get Shows with channels, nationalities, and the count of episodes and seasons.
      *
      * @return \Illuminate\Database\Eloquent\Collection|static[]|Show
      */
     public function getAllShowsWithCountSeasonsAndEpisodes()
     {
-        return $this->show::with('nationalities', 'channels')
+        return Show::with('nationalities', 'channels')
             ->withCount('episodes')
             ->withCount('seasons')
             ->get();
     }
 
     /**
-     * Récupère la série avec son paramètre URL. On ajoute les saisons, les épisodes, les genres, les nationalités et les chaînes.
+     * Get Show by show_url with channels, nationalities, seasons, episodes and genres.
      *
      * @param $show_url
      *
@@ -220,13 +232,13 @@ class ShowRepository
      */
     public function getShowByURLWithSeasonsAndEpisodes($show_url)
     {
-        return $this->show::where('show_url', $show_url)
+        return Show::where('show_url', $show_url)
             ->with('seasons', 'episodes', 'genres', 'nationalities', 'channels')
             ->first();
     }
 
     /**
-     * Récupère la série avec son paramètre URL. On ajoute les genres, les nationalités et les chaînes.
+     * Get Show by show_url with channels, nationalities, creators and genres.
      *
      * @param $show_url
      *
@@ -234,14 +246,13 @@ class ShowRepository
      */
     public function getShowByURL($show_url)
     {
-        return $this->show::where('show_url', $show_url)
+        return Show::where('show_url', $show_url)
             ->with('genres', 'nationalities', 'channels')
             ->first();
     }
 
     /**
-     * On récupère les détails de la série avec son paramètre URL.
-     * La différence avec la requête du dessus est surtout le fait que l'on récupère tout le casting.
+     * Get Show by show_url with channels, nationalities, creators, genres and all the actors.
      *
      * @param $show_url
      *
@@ -249,14 +260,14 @@ class ShowRepository
      */
     public function getShowDetailsByURL($show_url)
     {
-        return $this->show::where('shows.show_url', '=', $show_url)->with(['channels', 'nationalities', 'creators', 'genres', 'actors' => function ($q) {
+        return Show::where('shows.show_url', '=', $show_url)->with(['channels', 'nationalities', 'creators', 'genres', 'actors' => function ($q) {
             $q->select('artists.id', 'artists.name', 'artists.artist_url', 'artistables.role')
                 ->orderBy('artists.name', 'asc');
         }])->first();
     }
 
     /**
-     * On récupère une série grâce à son ID.
+     * Get Show.
      *
      * @param $id
      *
@@ -266,11 +277,11 @@ class ShowRepository
      */
     public function getByID($id)
     {
-        return $this->show::findOrFail($id);
+        return Show::findOrFail($id);
     }
 
     /**
-     * On récupère les détails de la série avec son ID.
+     * Get shows with channels, nationalities, creators and genres.
      *
      * @param $id
      *
@@ -278,13 +289,13 @@ class ShowRepository
      */
     public function getInfoShowByID($id)
     {
-        return $this->show::where('shows.id', '=', $id)
+        return Show::where('shows.id', '=', $id)
             ->with(['channels', 'nationalities', 'creators', 'genres'])
             ->first();
     }
 
     /**
-     * Récupère la série grâce à son ID, les saisons et les épisodes associés.
+     * Get Show with seasons and episodes.
      *
      * @param $id
      *
@@ -292,14 +303,14 @@ class ShowRepository
      */
     public function getShowSeasonsEpisodesByShowID($id)
     {
-        return $this->show::with(['seasons' => function ($q) {
+        return Show::with(['seasons' => function ($q) {
             $q->with('episodes');
         }])
             ->findOrFail($id);
     }
 
     /**
-     * Récupère la série grâce à son ID, et les acteurs associés.
+     * Get Show with actors.
      *
      * @param $id
      *
@@ -307,7 +318,7 @@ class ShowRepository
      */
     public function getShowActorsByID($id)
     {
-        return $this->show::with('actors')
+        return Show::with('actors')
             ->findOrFail($id);
     }
 
@@ -322,11 +333,11 @@ class ShowRepository
      */
     public function getShowByID($id)
     {
-        return $this->show::findOrFail($id);
+        return Show::findOrFail($id);
     }
 
     /**
-     * Récupère toutes les séries.
+     * Get shows.
      *
      * @param string $genre
      * @param string $channel
@@ -335,7 +346,7 @@ class ShowRepository
      */
     public function getAllShows($channel, $genre, $nationality, $tri, $order): LengthAwarePaginator
     {
-        $shows = $this->show::where(function ($q) use ($genre) {
+        $shows = Show::where(function ($q) use ($genre) {
             $q->whereHas('genres', function ($q) use ($genre) {
                 $q->where('name', 'like', '%'.$genre.'%');
             });
@@ -368,25 +379,28 @@ class ShowRepository
     }
 
     /**
+     * Get show by name.
+     *
      * @param $show_name
      *
      * @return Show|\Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder|object|null
      */
     public function getByName($show_name)
     {
-        return $this->show->whereName($show_name)->first();
+        return Show::whereName($show_name)->first();
     }
 
     /**
+     * Get ranking Shows.
+     *
      * @param $order
      *
      * @return Show
      */
     public function getRankingShows($order)
     {
-        return Cache::remember(ShowRepository::RANKING_SHOWS_CACHE_KEY.'_'.$order, Config::get('constants.cacheDuration.day'), function () use ($order) {
-            return $this->show
-                ->orderBy('moyenne', $order)
+        return Cache::remember(self::RANKING_SHOWS_CACHE_KEY.'_'.$order, Config::get('constants.cacheDuration.day'), function () use ($order) {
+            return Show::orderBy('moyenne', $order)
                 ->where('nbnotes', '>', config('param.nombreNotesMiniClassementShows'))
                 ->limit(15)
                 ->get();
@@ -394,15 +408,14 @@ class ShowRepository
     }
 
     /**
-     * @param $nationality
+     * Get ranking Show by Nationalities.
      *
-     * @return Show
+     * @param $nationality
      */
     public function getRankingShowsByNationalities($nationality)
     {
-        return Cache::remember(ShowRepository::RANKING_SHOWS_CACHE_KEY.'_'.$nationality, Config::get('constants.cacheDuration.day'), function () use ($nationality) {
-            return $this->show
-                ->orderBy('moyenne', 'desc')
+        return Cache::remember(self::RANKING_SHOWS_CACHE_KEY.'_'.$nationality, Config::get('constants.cacheDuration.day'), function () use ($nationality) {
+            return Show::orderBy('moyenne', 'desc')
                 ->whereHas('nationalities', function ($q) use ($nationality) {
                     $q->where('name', '=', $nationality);
                 })
@@ -413,15 +426,14 @@ class ShowRepository
     }
 
     /**
-     * @param $category
+     * Get ranking Show by Genre.
      *
-     * @return Show
+     * @param $category
      */
     public function getRankingShowsByGenres($category)
     {
-        return Cache::remember(ShowRepository::RANKING_SHOWS_CACHE_KEY.'_'.$category, Config::get('constants.cacheDuration.day'), function () use ($category) {
-            return $this->show
-                ->orderBy('moyenne', 'desc')
+        return Cache::remember(self::RANKING_SHOWS_CACHE_KEY.'_'.$category, Config::get('constants.cacheDuration.day'), function () use ($category) {
+            return Show::orderBy('moyenne', 'desc')
                 ->whereHas('genres', function ($q) use ($category) {
                     $q->where('name', '=', $category);
                 })
@@ -432,38 +444,23 @@ class ShowRepository
     }
 
     /**
-     * @param $user
+     * Get the 12 Last Added Shows.
      *
      * @return mixed
      */
-    public function getShowFollowedByUser($user)
-    {
-        return $this->show
-            ->join('show_user', 'shows.id', '=', 'show_user.show_id')
-            ->join('users', 'users.id', '=', 'show_user.user_id')
-            ->orderBy('shows.name')
-            ->where('users.id', '=', $user)
-            ->select(DB::raw('shows.id as sid, users.id as uid, shows.name as name, shows.show_url as show_url, show_user.state as state, show_user.message as message'))
-            ->get();
-    }
-
     public function getLastAddedShows()
     {
-//        return Cache::remember(ShowRepository::LAST_ADDED_SHOW_CACHE_KEY, Config::get('constants.cacheDuration.medium'), function () {
-        return $this->show->orderBy('created_at', 'desc')->limit(12)->get();
-//        });
+        return Show::orderBy('created_at', 'desc')->limit(12)->get();
     }
 
     /**
-     * Récupère la note de la série en cours.
+     * Get Rate by ID.
      *
      * @param $id
-     *
-     * @return array
      */
-    public function getRateByShowID($id)
+    public function getRateByShowID($id): array
     {
-        return $this->show::with(['rates' => function ($q) {
+        return Show::with(['rates' => function ($q) {
             $q->orderBy('updated_at', 'desc');
             $q->limit(20);
         }, 'rates.episode' => function ($q) {

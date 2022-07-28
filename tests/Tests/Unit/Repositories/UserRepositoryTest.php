@@ -9,8 +9,10 @@ use App\Models\Season;
 use App\Models\Show;
 use App\Models\User;
 use App\Repositories\UserRepository;
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 /**
@@ -20,10 +22,14 @@ class UserRepositoryTest extends TestCase
 {
     use RefreshDatabase;
 
+    private UserRepository $repository;
+
     public function setUp(): void
     {
         parent::createApplication();
         parent::setUp();
+
+        $this->repository = new UserRepository();
     }
 
     public function testGetByID()
@@ -33,19 +39,33 @@ class UserRepositoryTest extends TestCase
             ->create();
         $want = $users[1];
 
-        $repository = new UserRepository(new User());
-
-        $got = $repository->getByID($want->id);
+        $got = $this->repository->getByID($want->id);
 
         $this->assertEquals($want->getAttributes(), $got->getAttributes());
     }
 
-    public function testGetByIDNotFound()
+    public function testGetByID_NotFound()
     {
-        $repository = new UserRepository(new User());
-
         $this->expectException(ModelNotFoundException::class);
-        $repository->getByID(1);
+        $this->repository->getByID(1);
+    }
+
+    public function testGetByURL()
+    {
+        $users = User::factory()
+            ->count(2)
+            ->create();
+        $want = $users[1];
+
+        $got = $this->repository->getByURL($want->user_url);
+
+        $this->assertEquals($want->getAttributes(), $got->getAttributes());
+    }
+
+    public function testGetByURL_NotFoundThrowsException()
+    {
+        $this->expectException(ModelNotFoundException::class);
+        $this->repository->getBYURL(1);
     }
 
     public function testGetByUsername()
@@ -53,22 +73,18 @@ class UserRepositoryTest extends TestCase
         $users = User::factory()->count(2)->create();
         $want = $users[1];
 
-        $repository = new UserRepository(new User());
-
-        $got = $repository->getByUsername($want->username);
+        $got = $this->repository->getByUsername($want->username);
 
         $this->assertEquals($want->getAttributes(), $got->getAttributes());
     }
 
-    public function testGetByUsernameNotFound()
+    public function testGetByUsername_NotFound()
     {
-        $repository = new UserRepository(new User());
-
         $this->expectException(ModelNotFoundException::class);
-        $repository->getByUsername('abcdef');
+        $this->repository->getByUsername('abcdef');
     }
 
-    public function testGetByURL()
+    public function testGetByURLWithPublishedArticles()
     {
         $users = User::factory()
             ->count(2)
@@ -82,20 +98,16 @@ class UserRepositoryTest extends TestCase
             ->create();
         $want = $users[1];
 
-        $repository = new UserRepository(new User());
-
-        $got = $repository->getByURL($want->user_url);
+        $got = $this->repository->getByURLWithPublishedArticles($want->user_url);
 
         $this->assertEquals($want->getAttributes(), $got->getAttributes());
         $this->assertCount(2, $got->articles);
     }
 
-    public function testGetByURLNotFound()
+    public function testGetByURLWithPublishedArticles_NotFoundThrowsException()
     {
-        $repository = new UserRepository(new User());
-
         $this->expectException(ModelNotFoundException::class);
-        $repository->getByURL('toto');
+        $this->repository->getByURLWithPublishedArticles('toto');
     }
 
     public function testList()
@@ -105,12 +117,19 @@ class UserRepositoryTest extends TestCase
             ->create();
         $want = $users->toArray();
 
-        $repository = new UserRepository(new User());
-
-        $gotUsers = $repository->list();
+        $gotUsers = $this->repository->list();
         $got = json_decode(json_encode($gotUsers->toArray()), true);
 
         $this->assertEquals(sort($want), sort($got));
+    }
+
+    public function testList_NotFoundReturnsEmptyList()
+    {
+        $gotUsers = $this->repository->list();
+        $got = json_decode(json_encode($gotUsers->toArray()));
+        $want = [];
+
+        $this->assertEquals($want, $got);
     }
 
     public function testGetEpisodePlanning()
@@ -140,10 +159,29 @@ class UserRepositoryTest extends TestCase
             ->create();
         $want = $user[0];
 
-        $repository = new UserRepository(new User());
-
-        $got = $repository->getEpisodePlanning($want->id, 1);
+        $got = $this->repository->getEpisodePlanning($want->id, 1);
 
         $this->assertCount(3, $got);
+    }
+
+    public function testSave()
+    {
+        $user = User::factory()->make();
+
+        $this->repository->save($user);
+        $got = $this->repository->getByURL($user->user_url);
+
+        $this->assertEquals($user->getAttributes(), $got->getAttributes());
+    }
+
+    public function testSave_ThrowsException()
+    {
+        config(['database.connections.mysql.password' => 'toto']);
+        DB::reconnect('mysql');
+
+        $user = User::factory()->make();
+
+        $this->expectException(Exception::class);
+        $this->repository->save($user);
     }
 }

@@ -31,7 +31,7 @@ function cutResume($resume)
     $part1 = $tcut[0];
     $part2 = '';
 
-    for ($i = 1, $iMax = count($tcut); $i < $iMax; ++$i) {
+    for ($i = 1, $iMax = count($tcut); $i < $iMax; $i++) {
         $part2 .= $tcut[$i].' ';
     }
 
@@ -196,7 +196,7 @@ function affichageAvatar($id)
 
 function createDirectoryIfNotExists($dir)
 {
-    if (!file_exists($dir)) {
+    if (! file_exists($dir)) {
         mkdir($dir);
     }
 }

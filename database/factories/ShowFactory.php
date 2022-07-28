@@ -25,8 +25,8 @@ class ShowFactory extends Factory
         $faker = $this->faker;
 
         return [
-            'thetvdb_id' => $faker->randomDigit(),
-            'show_url' => $faker->slug,
+            'tmdb_id' => $faker->unique()->randomNumber(5),
+            'show_url' => $faker->unique()->slug,
             'name' => $faker->name,
             'name_fr' => $faker->name,
             'synopsis' => $faker->realText(),

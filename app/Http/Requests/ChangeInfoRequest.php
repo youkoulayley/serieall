@@ -9,6 +9,7 @@ use Illuminate\Foundation\Http\FormRequest;
 /**
  * Class UserChangeInfosRequest.
  *
+ * Class UserChangeInfosRequest.
  * @property mixed email
  * @property mixed antispoiler
  * @property mixed twitter
@@ -16,7 +17,7 @@ use Illuminate\Foundation\Http\FormRequest;
  * @property mixed website
  * @property mixed edito
  */
-class UserChangeInfosRequest extends FormRequest
+class ChangeInfoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

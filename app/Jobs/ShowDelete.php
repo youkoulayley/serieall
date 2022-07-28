@@ -20,7 +20,9 @@ class ShowDelete implements ShouldQueue
     use SerializesModels;
 
     protected $id;
+
     protected $userID;
+
     private $showRepository;
 
     /**

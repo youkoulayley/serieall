@@ -36,7 +36,6 @@ class EpisodeCreateRequest extends FormRequest
             'episodes.*.diffusion_fr' => 'date',
             'episodes.*.directors' => ['regex:/^[A-Za-z0-9-éèàùç%+. ]{1,255}?(,[A-Za-z0-9-éèàùç%+. ]{1,255})*$/'],
             'episodes.*.writers' => ['regex:/^[A-Za-z0-9-éèàùç%+. ]{1,255}?(,[A-Za-z0-9-éèàùç%+. ]{1,255})*$/'],
-            'episodes.*.guests' => ['regex:/^[A-Za-z0-9-éèàùç%+. ]{1,255}?(,[A-Za-z0-9-éèàùç%+. ]{1,255})*$/'],
-        ];
+            'episodes.*.guests' => ['regex:/^[A-Za-z0-9-éèàùç%+. ]{1,255}?(,[A-Za-z0-9-éèàùç%+. ]{1,255})*$/'], ];
     }
 }

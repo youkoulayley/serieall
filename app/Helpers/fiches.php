@@ -227,7 +227,7 @@ function affichageThumbIcon($thumb)
  */
 function affichageMessageWithLineBreak($message)
 {
-    if (!strstr($message, '<p>')) {
+    if (! strstr($message, '<p>')) {
         $resultMessage = '<p>'.$message.'</p>';
         $resultMessage = str_replace("\n", '</p><p>', $resultMessage);
         $resultMessage = str_replace('<p></p>', '', $resultMessage);

@@ -20,6 +20,7 @@ class SeasonUpdate implements ShouldQueue
     use SerializesModels;
 
     protected $inputs;
+
     protected $seasonRepository;
 
     /**

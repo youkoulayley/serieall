@@ -64,7 +64,7 @@
             <h1 class="d-center">Modification de vos informations personnelles</h1>
             <br />
 
-            <form class="ui form" method="POST" action="{{ route('user.changeinfos') }}">
+            <form class="ui form" method="POST" action="{{ route('user.profile.changeInfo') }}">
                 {{ csrf_field() }}
 
                 <input name="id" type="hidden" value="{{ $user->id }}">
@@ -161,7 +161,7 @@
             <h1 class="d-center">Modification de votre mot de passe</h1>
             <br />
 
-            <form class="ui form" method="POST" action="{{ route('user.changepassword') }}">
+            <form class="ui form" method="POST" action="{{ route('user.profile.changePassword') }}">
                 {{ csrf_field() }}
 
                 <div class="ui required field {{ $errors->has('password') ? ' error' : '' }}">

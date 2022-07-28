@@ -18,6 +18,7 @@ use Youkoulayley\ApiHandler\Facades\ApiHandler;
 class UsersListController extends Controller
 {
     use Helpers;
+
     protected $users;
 
     /**

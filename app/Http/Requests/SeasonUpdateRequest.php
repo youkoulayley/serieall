@@ -30,7 +30,6 @@ class SeasonUpdateRequest extends FormRequest
     {
         return [
             'tmdb_id' => 'numeric|unique:seasons,tmdb_id,'.$this->get('id'),
-            'name' => 'required|numeric',
-        ];
+            'name' => 'required|numeric', ];
     }
 }

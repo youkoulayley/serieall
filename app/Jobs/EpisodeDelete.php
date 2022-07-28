@@ -20,6 +20,7 @@ class EpisodeDelete implements ShouldQueue
     use SerializesModels;
 
     protected $episodeID;
+
     protected $userID;
 
     /**

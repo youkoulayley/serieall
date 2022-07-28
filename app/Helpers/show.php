@@ -16,13 +16,13 @@ function createorUpdateShow(array $inputs)
         $showFr = apiTvdbGetShow('fr', $theTvdbId)->data;
     } catch (GuzzleException | ErrorException $e) {
         Log::error('ShowAddFromTVDB: Show not found for language fr.');
-        ++$showNotFound;
+        $showNotFound++;
     }
     try {
         $showEn = apiTvdbGetShow('en', $theTvdbId)->data;
     } catch (GuzzleException | ErrorException $e) {
         Log::error('ShowAddFromTVDB: Show not found for language en.');
-        ++$showNotFound;
+        $showNotFound++;
     }
 
     if (2 == $showNotFound) {
@@ -96,24 +96,24 @@ function createorUpdateShow(array $inputs)
     resizeImage($showName, 'poster');
     resizeImage($showName, 'banner');
 
-    if ($showEn->genre && !empty($showEn->genre)) {
+    if ($showEn->genre && ! empty($showEn->genre)) {
         Log::debug('Show : Link and create all genres for '.$showBdd->name.'.');
         linkAndCreateGenresToShow($showBdd, $showEn->genre);
     }
 
-    if (array_key_exists('creators', $inputs) || !empty($inputs['creators'])) {
+    if (array_key_exists('creators', $inputs) || ! empty($inputs['creators'])) {
         Log::debug('Show : Link and create all creators for '.$showBdd->name.'.');
         $inputs['creators'] = explode(',', $inputs['creators']);
         linkAndCreateArtistsToShow($showBdd, $inputs['creators'], 'creator');
     }
 
-    if (array_key_exists('nationalities', $inputs) || !empty($inputs['nationalities'])) {
+    if (array_key_exists('nationalities', $inputs) || ! empty($inputs['nationalities'])) {
         Log::debug('Show : Link and create all nationalities for '.$showBdd->name.'.');
         $inputs['nationalities'] = explode(',', $inputs['nationalities']);
         linkAndCreateNationalitiesToShow($showBdd, $inputs['nationalities']);
     }
 
-    if ($channels && !empty($channels)) {
+    if ($channels && ! empty($channels)) {
         Log::debug('Show : Link and create all channels for '.$showBdd->name.'.');
         $channels = explode(',', $channels);
         linkAndCreateChannelsToShow($showBdd, $channels);

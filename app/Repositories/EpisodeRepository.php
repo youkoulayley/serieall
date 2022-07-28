@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Interfaces\EpisodeRepositoryInterface;
 use App\Models\Episode;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -13,10 +14,11 @@ use Illuminate\Support\Facades\DB;
 /**
  * Class SeasonRepository.
  */
-class EpisodeRepository
+class EpisodeRepository implements EpisodeRepositoryInterface
 {
     /** Constant for cache*/
     public const PLANNING_CACHE_KEY = 'PLANNING_CACHE_KEY';
+
     public const RANKING_EPISODE_CACHE_KEY = 'RANKING_EPISODE_CACHE_KEY';
 
     protected $episode;
@@ -149,7 +151,7 @@ class EpisodeRepository
      */
     public function getPlanningHome($diffusion, $date)
     {
-        return Cache::remember(EpisodeRepository::PLANNING_CACHE_KEY.'_'.$diffusion.'_'.$date, Config::get('constants.cacheDuration.long'), function () use ($diffusion, $date) {
+        return Cache::remember(self::PLANNING_CACHE_KEY.'_'.$diffusion.'_'.$date, Config::get('constants.cacheDuration.long'), function () use ($diffusion, $date) {
             return $this->episode
                 ->with(['season' => function ($q) {
                     $q->with('show');
@@ -167,7 +169,7 @@ class EpisodeRepository
      */
     public function getRankingEpisodes($order)
     {
-        return Cache::remember(EpisodeRepository::RANKING_EPISODE_CACHE_KEY.'_'.$order, Config::get('constants.cacheDuration.day'), function () use ($order) {
+        return Cache::remember(self::RANKING_EPISODE_CACHE_KEY.'_'.$order, Config::get('constants.cacheDuration.day'), function () use ($order) {
             return $this->episode
                 ->orderBy('moyenne', $order)
                 ->orderBy('nbnotes', $order)

@@ -12,6 +12,7 @@ use App\Models\Season;
 class TMDBSeason
 {
     public Season $season;
+
     public array $episodes;
 
     public function __construct(

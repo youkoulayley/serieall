@@ -8,12 +8,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ShowCreateManuallyRequest;
 use App\Http\Requests\ShowCreateRequest;
 use App\Http\Requests\ShowUpdateManuallyRequest;
+use App\Jobs\AddTMDBID;
 use App\Jobs\ClearDoublons;
 use App\Jobs\OneShowUpdateFromTMDB;
-use App\Jobs\OneShowUpdateFromTVDB;
-use App\Jobs\AddTMDBID;
 use App\Jobs\ShowUpdateFromTMDB;
-use App\Jobs\ShowUpdateFromTVDB;
 use App\Repositories\ArtistRepository;
 use App\Repositories\ChannelRepository;
 use App\Repositories\GenreRepository;
@@ -34,11 +32,17 @@ use Illuminate\Support\Facades\View;
 class AdminShowController extends Controller
 {
     protected $showRepository;
+
     protected $artistRepository;
+
     protected $channelRepository;
+
     protected $genreRepository;
+
     protected $nationalityRepository;
+
     protected $seasonRepository;
+
     protected $logRepository;
 
     /**
@@ -289,7 +293,6 @@ class AdminShowController extends Controller
     {
         dispatch(new AddTMDBID());
     }
-
 
     /**
      * clearDoublons.

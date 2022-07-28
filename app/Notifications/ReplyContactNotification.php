@@ -16,6 +16,7 @@ class ReplyContactNotification extends Notification
     use Queueable;
 
     protected $contact;
+
     protected $message;
 
     /**

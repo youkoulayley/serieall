@@ -4,99 +4,117 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Interfaces\UserRepositoryInterface;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Class UserRepository.
  */
-class UserRepository
+class UserRepository implements UserRepositoryInterface
 {
-    protected User $user;
-
-    /**
-     * UserRepository constructor.
-     */
-    public function __construct(User $user)
-    {
-        $this->user = $user;
-    }
-
-    /**
-     * Get by Username.
-     *
-     * @param $username
-     *
-     * @throws ModelNotFoundException
-     */
-    public function getByUsername($username): User
-    {
-        return $this->user::where('username', $username)->firstOrFail();
-    }
-
-    /**
-     * Get By URL.
-     *
-     * @param $user_url
-     *
-     * @return Builder|Model
-     *
-     * @throws ModelNotFoundException
-     */
-    public function getByURL($user_url)
-    {
-        return $this->user::with(['articles' => function ($q) {
-            $q->where('state', '=', 1);
-            $q->orderBy('published_at', 'desc')->paginate(2);
-        }])->where('user_url', $user_url)->firstOrFail();
-    }
-
-    /**
-     * List.
-     */
-    public function list(): \Illuminate\Support\Collection
-    {
-        return $this->user::orderBy('username')->get();
-    }
+    private const limitLastPublishedArticles = 2;
 
     /**
      * Get User By ID.
      *
      * @param $id
      *
-     * @return \Illuminate\Database\Eloquent\Collection|Model
-     *
-     * @throws ModelNotFoundException
+     * @return User
      */
     public function getByID($id): User
     {
-        return $this->user->findOrFail($id);
+        return User::findOrFail($id);
     }
 
     /**
-     * Get planning for user.
+     * Get User By URL.
      *
-     * @param $user_id
-     * @param $state
-     *
-     * @return mixed
+     * @param string $userURL
+     * @return User
      */
-    public function getEpisodePlanning($user_id, $state)
+    public function getByURL(string $userURL): User
     {
-        return $this->user->join('show_user', 'users.id', '=', 'show_user.user_id')
+        return User::where('user_url', $userURL)->firstOrFail();
+    }
+
+    /**
+     * Get by Username.
+     *
+     * @param string $username
+     * @return User
+     */
+    public function getByUsername(string $username): User
+    {
+        return User::where('username', $username)->firstOrFail();
+    }
+
+    /**
+     * GetByURL returns the user based on the given URL with his published articles.
+     *
+     * @param $userURL
+     *
+     * @return Builder|Model
+     */
+    public function getByURLWithPublishedArticles(string $userURL)
+    {
+        return User::with(['articles' => function ($q) {
+            $q->where('state', '=', config('articles.published'));
+            $q->orderBy('published_at', 'desc')->paginate(self::limitLastPublishedArticles);
+        }])->where('user_url', $userURL)->firstOrFail();
+    }
+
+    /**
+     * List returns the list of all users.
+     */
+    public function list(): Collection
+    {
+        return User::orderBy('username')->get();
+    }
+
+    /**
+     * GetEpisodePlanning returns the list of the diffused episode in the previous month and on the coming month.
+     *
+     * @param $userID
+     * @param $state
+     * @return Collection
+     */
+    public function getEpisodePlanning($userID, $state): Collection
+    {
+        return User::join('show_user', 'users.id', '=', 'show_user.user_id')
             ->join('shows', 'show_user.show_id', '=', 'shows.id')
             ->join('seasons', 'shows.id', '=', 'seasons.show_id')
             ->join('episodes', 'seasons.id', '=', 'episodes.season_id')
-            ->where('users.id', '=', $user_id)
+            ->where('users.id', '=', $userID)
             ->where('show_user.state', '=', $state)
             ->whereBetween('episodes.diffusion_us', [
-                Carbon::now()->subMonth(1),
-                Carbon::now()->addMonth(1), ])
+                Carbon::now()->subMonth(),
+                Carbon::now()->addMonth(),
+            ])
             ->select(DB::raw('shows.name as show_name, seasons.name as season_name, episodes.name as episode_name, episodes.id, episodes.numero, episodes.diffusion_us, shows.show_url'))
             ->get();
+    }
+
+    /**
+     * Save save a user in database.
+     *
+     * @param User|Authenticatable|Model $user
+     * @return void
+     * @throws Exception
+     */
+    public function save($user)
+    {
+        $ok = $user->save();
+        if ($ok) {
+            return;
+        }
+
+        throw new Exception('unable to save user');
     }
 }

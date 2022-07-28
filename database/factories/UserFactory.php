@@ -26,6 +26,7 @@ class UserFactory extends Factory
         $faker = $this->faker;
 
         return [
+            'id' => $faker->unique()->randomNumber(5),
             'username' => $faker->name,
             'user_url' => $faker->slug,
             'email' => $faker->unique()->safeEmail(),
@@ -33,7 +34,7 @@ class UserFactory extends Factory
             'suspended' => 0,
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'remember_token' => Str::random(10),
-            'activated' => 0,
+            'activated' => 1,
             'edito' => $faker->jobTitle,
             'antispoiler' => 1,
             'website' => '',

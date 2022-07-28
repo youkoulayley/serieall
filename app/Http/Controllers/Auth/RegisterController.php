@@ -29,12 +29,14 @@ class RegisterController extends Controller
     |
     */
     use RegistersUsers;
+
     /**
      * Where to redirect users after login / registration.
      *
      * @var string
      */
     protected $redirectTo = '/';
+
     protected $activationService;
 
     /**

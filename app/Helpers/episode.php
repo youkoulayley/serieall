@@ -37,7 +37,7 @@ function linkAndCreateEpisodesToShow(Show $show): bool
                 }
 
                 createOrUpdateEpisode($show, $listEpisodes->data);
-                ++$listEpisodesNextPage;
+                $listEpisodesNextPage++;
             } catch (GuzzleException | ErrorException $e) {
                 Log::error('Episode: Episodes not found for language en or fr.');
 
@@ -87,13 +87,13 @@ function createOrUpdateEpisode(Show $show, array $listEpisodes)
             $episodeFr = apiTvdbGetEpisode('fr', $episode->id)->data;
         } catch (GuzzleException | ErrorException $e) {
             Log::error('Episode: Episode not found for language fr.');
-            ++$episodeNotFound;
+            $episodeNotFound++;
         }
         try {
             $episodeEn = apiTvdbGetEpisode('en', $episode->id)->data;
         } catch (GuzzleException | ErrorException $e) {
             Log::error('Episode: Episode not found for language en.');
-            ++$episodeNotFound;
+            $episodeNotFound++;
         }
 
         if (2 == $episodeNotFound) {
@@ -134,7 +134,7 @@ function createOrUpdateEpisode(Show $show, array $listEpisodes)
         ];
 
         $episodeBdd = Episode::where('tmdb_id', $episodeInfo['tmdb_id'])->first();
-        if (0 == $episodeSeason && !is_null($episodeAirsAfterSeason)) {
+        if (0 == $episodeSeason && ! is_null($episodeAirsAfterSeason)) {
             $seasonBdd = Season::where('name', $episodeAirsAfterSeason)->where('show_id', $show->id)->first();
         } elseif (0 == $episodeSeason && is_null($episodeAirsAfterSeason)) {
             continue;

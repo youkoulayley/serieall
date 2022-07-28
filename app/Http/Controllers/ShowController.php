@@ -23,11 +23,17 @@ use Illuminate\Support\Facades\View;
 class ShowController extends Controller
 {
     use FormatShowHeaderTrait;
+
     protected $showRepository;
+
     protected $seasonRepository;
+
     protected $episodeRepository;
+
     protected $commentRepository;
+
     protected $articleRepository;
+
     protected $categoryRepository;
 
     /**
@@ -130,7 +136,7 @@ class ShowController extends Controller
         // Get Show
         $show = $this->showRepository->getShowByURL($show_url);
 
-        if (!is_null($show)) {
+        if (! is_null($show)) {
             $showInfo = $this->formatForShowHeader($show);
             $showInfo['seasons'] = $this->seasonRepository->getSeasonsCountEpisodesForShowByID($show->id);
 
@@ -189,7 +195,7 @@ class ShowController extends Controller
     public function getShowDetails($show_url)
     {
         $show = $this->showRepository->getShowDetailsByURL($show_url);
-        if (!is_null($show)) {
+        if (! is_null($show)) {
             $showInfo = $this->formatForShowHeader($show);
 
             return view('shows/details', compact('showInfo'));
@@ -201,7 +207,7 @@ class ShowController extends Controller
     public function getShowArticles($show_url)
     {
         $show = $this->showRepository->getShowByURL($show_url);
-        if (!is_null($show)) {
+        if (! is_null($show)) {
             $showInfo = $this->formatForShowHeader($show);
 
             $categories = $this->categoryRepository->getAllCategories();
@@ -231,7 +237,7 @@ class ShowController extends Controller
     public function getShowArticlesByCategory($show_url, $idCategory)
     {
         $show = $this->showRepository->getShowByURL($show_url);
-        if (!is_null($show)) {
+        if (! is_null($show)) {
             $showInfo = $this->formatForShowHeader($show);
 
             $categories = $this->categoryRepository->getAllCategories();

@@ -49,7 +49,6 @@ class ShowCreateManuallyRequest extends FormRequest
             'seasons.*.episodes.*.diffusion_fr' => 'date',
             'seasons.*.episodes.*.directors' => ['regex:/^[A-Za-z0-9-éèàùç%+ ]{1,255}?(,[A-Za-z0-9-éèàùç%+ ]{1,255})*$/'],
             'seasons.*.episodes.*.writers' => ['regex:/^[A-Za-z0-9-éèàùç%+ ]{1,255}?(,[A-Za-z0-9-éèàùç%+ ]{1,255})*$/'],
-            'seasons.*.episodes.*.guests' => ['regex:/^[A-Za-z0-9-éèàùç%+ ]{1,255}?(,[A-Za-z0-9-éèàùç%+ ]{1,255})*$/'],
-        ];
+            'seasons.*.episodes.*.guests' => ['regex:/^[A-Za-z0-9-éèàùç%+ ]{1,255}?(,[A-Za-z0-9-éèàùç%+ ]{1,255})*$/'], ];
     }
 }

@@ -31,7 +31,6 @@ class CommentWTNCreateRequest extends FormRequest
         return [
             'object_id' => 'required|numeric',
             'object' => 'required|in:Show,Season,Episode,Article',
-            'avis' => 'required|min:20',
-        ];
+            'avis' => 'required|min:20', ];
     }
 }

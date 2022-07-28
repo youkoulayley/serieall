@@ -10,7 +10,6 @@
         "ext-json": "*",
         "ext-pdo": "*",
         "barryvdh/laravel-debugbar": "~3.1",
-        "barryvdh/laravel-ide-helper": "^2.4",
         "consoletvs/charts": "6.*",
         "dingo/api": "^2.0",
         "doctrine/dbal": "^2.5",
@@ -42,16 +41,17 @@
         "youkoulayley/podcastfeed": "v0.4.2"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^2.10",
+        "facade/ignition": "^2.5",
+        "fakerphp/faker": "^1.9.1",
         "filp/whoops": "~2.0",
         "friendsofphp/php-cs-fixer": "^3.1",
-        "fakerphp/faker": "^1.9.1",
+        "laravel/sail": "^1.0.1",
         "mockery/mockery": "^1.4.2",
+        "nunomaduro/collision": "^5.0",
         "phpunit/phpunit": "^9.3.3",
         "symfony/css-selector": "3.1.*",
-        "symfony/dom-crawler": "3.1.*",
-        "nunomaduro/collision": "^5.0",
-        "laravel/sail": "^1.0.1",
-        "facade/ignition": "^2.5"
+        "symfony/dom-crawler": "3.1.*"
     },
     "autoload": {
         "psr-4": {
@@ -66,7 +66,7 @@
             "app/Helpers/genre.php",
             "app/Helpers/fiches.php",
             "app/Helpers/helpers.php",
-            "app/Helpers/images.php",
+            "app/Helpers/ResizeImage.php",
             "app/Helpers/logs.php",
             "app/Helpers/nationality.php",
             "app/Helpers/thetvdb.php",
@@ -86,6 +86,11 @@
         ],
         "post-create-project-cmd": [
             "php artisan key:generate"
+        ],
+        "post-update-cmd": [
+            "Illuminate\\Foundation\\ComposerScripts::postUpdate",
+            "@php artisan ide-helper:generate",
+            "@php artisan ide-helper:meta"
         ]
     },
     "config": {

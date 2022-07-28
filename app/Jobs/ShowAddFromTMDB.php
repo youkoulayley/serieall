@@ -27,26 +27,26 @@ class ShowAddFromTMDB extends Job implements ShouldQueue
      */
     public function __construct($inputs)
     {
-        $this->inputs =  $inputs;
+        $this->inputs = $inputs;
     }
 
     public function handle()
     {
-        $id = (int) $this->inputs["tmdb_id"];
+        $id = (int) $this->inputs['tmdb_id'];
         Log::debug('ShowAddFromTMDB: Start a job with : '.json_encode($id));
 
         $tmdb = new TMDBController(config('tmdb.apiKey'));
         $show = $tmdb->getShow($id);
         $seasons = $tmdb->getSeasonsByShow($id, $show->seasons_count);
 
-        $show->show->taux_erectile = $this->inputs["taux_erectile"];
-        $show->show->avis_rentree = $this->inputs["avis_rentree"];
+        $show->show->taux_erectile = $this->inputs['taux_erectile'];
+        $show->show->avis_rentree = $this->inputs['avis_rentree'];
 
         $show->show->save();
 
-        $frChannels = explode(",", $this->inputs["chaine_fr"]);
+        $frChannels = explode(',', $this->inputs['chaine_fr']);
         linkAndCreateChannelsToShow($show->show, array_merge($show->channels, $frChannels));
-        linkAndCreateArtistsToShow($show->show, $show->creators, "creator");
+        linkAndCreateArtistsToShow($show->show, $show->creators, 'creator');
         linkAndCreateNationalitiesToShow($show->show, $show->nationalities);
         linkAndCreateGenresToShow($show->show, $show->genres);
         linkAndCreateActorsToShow($show->show, $show->actors);
@@ -64,9 +64,9 @@ class ShowAddFromTMDB extends Job implements ShouldQueue
                 $episode->episode->season()->associate($season->season);
                 $episode->episode->save();
 
-                linkAndCreateArtistsToEpisode($episode->episode, $episode->guests, "guest");
-                linkAndCreateArtistsToEpisode($episode->episode, $episode->writers, "writer");
-                linkAndCreateArtistsToEpisode($episode->episode, $episode->directors, "director");
+                linkAndCreateArtistsToEpisode($episode->episode, $episode->guests, 'guest');
+                linkAndCreateArtistsToEpisode($episode->episode, $episode->writers, 'writer');
+                linkAndCreateArtistsToEpisode($episode->episode, $episode->directors, 'director');
             }
         }
 

@@ -110,7 +110,7 @@ function linkAndCreateActorsToShow(Show $show, array $actors)
         $actorImage = $actor->image;
 
         $actorImageHeaders = get_headers($actorImage);
-        if (!$actorImageHeaders || 'HTTP/1.1 404 Not Found' == $actorImageHeaders[0]) {
+        if (! $actorImageHeaders || 'HTTP/1.1 404 Not Found' == $actorImageHeaders[0]) {
             Log::Error('Artist : '.$actorBdd->name.' doesn\'t have image.');
         } else {
             copy($actorImage, $public.'/images/actors/'.$actorBdd->artist_url.'.jpg');

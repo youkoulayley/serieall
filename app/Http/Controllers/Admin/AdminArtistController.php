@@ -22,6 +22,7 @@ use Illuminate\Support\Str;
 class AdminArtistController extends Controller
 {
     protected $artistRepository;
+
     protected $showRepository;
 
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
@@ -48,5 +49,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        if ($this->app->isLocal()) {
+            $this->app->register(IdeHelperServiceProvider::class);
+        }
     }
 }

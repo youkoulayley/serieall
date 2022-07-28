@@ -25,8 +25,8 @@ class EpisodeFactory extends Factory
         $faker = $this->faker;
 
         return [
-            'thetvdb_id' => $faker->randomNumber(),
-            'numero' => $faker->randomNumber(),
+            'tmdb_id' => $faker->unique()->randomNumber(5),
+            'numero' => $faker->unique()->randomNumber(2),
             'name' => $faker->name,
             'name_fr' => $faker->name,
             'resume' => $faker->realText,

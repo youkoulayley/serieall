@@ -85,7 +85,7 @@ class ClearDoublons extends Job implements ShouldQueue
                         ->where('name', '=', $currentSeason->name)
                         ->first();
 
-                    if (!is_null($tvdbSeason)) {
+                    if (! is_null($tvdbSeason)) {
                         //There is a tvdb season -> need to update season & episodes
 
                         //Verification du nombre d'épisodes dans la saison.
@@ -167,7 +167,7 @@ class ClearDoublons extends Job implements ShouldQueue
                             ->first();
                     }
 
-                    if (!is_null($tvdbEpisode)) {
+                    if (! is_null($tvdbEpisode)) {
                         saveLogMessage($idLog, '>>> Episode with tvdb id in database  : '.$tvdbEpisode);
 
                         if ($tvdbEpisode->nbnotes > 0) {
@@ -205,16 +205,16 @@ class ClearDoublons extends Job implements ShouldQueue
     private function updateEpisodeData($episodeToUpdate, $episodeToPickDataFrom)
     {
         $episodeToUpdate->thetvdb_id = $episodeToPickDataFrom->thetvdb_id;
-        if (!is_null($episodeToPickDataFrom->resume_fr) && is_null($episodeToUpdate->resume_fr)) {
+        if (! is_null($episodeToPickDataFrom->resume_fr) && is_null($episodeToUpdate->resume_fr)) {
             $episodeToUpdate->resume_fr = $episodeToPickDataFrom->resume_fr;
         }
-        if (!is_null($episodeToPickDataFrom->resume_en) && is_null($episodeToUpdate->resume_en)) {
+        if (! is_null($episodeToPickDataFrom->resume_en) && is_null($episodeToUpdate->resume_en)) {
             $episodeToUpdate->resume_en = $episodeToPickDataFrom->resume_en;
         }
-        if (!is_null($episodeToPickDataFrom->diffusion_us) && is_null($episodeToUpdate->diffusion_us)) {
+        if (! is_null($episodeToPickDataFrom->diffusion_us) && is_null($episodeToUpdate->diffusion_us)) {
             $episodeToUpdate->diffusion_us = $episodeToPickDataFrom->diffusion_us;
         }
-        if (!is_null($episodeToPickDataFrom->diffusion_fr) && is_null($episodeToUpdate->diffusion_fr)) {
+        if (! is_null($episodeToPickDataFrom->diffusion_fr) && is_null($episodeToUpdate->diffusion_fr)) {
             $episodeToUpdate->diffusion_fr = $episodeToPickDataFrom->diffusion_fr;
         }
     }

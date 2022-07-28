@@ -20,6 +20,7 @@ class SeasonDelete implements ShouldQueue
     use SerializesModels;
 
     protected $seasonID;
+
     protected $userID;
 
     /**

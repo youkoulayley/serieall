@@ -60,7 +60,7 @@ class UserUpdate implements ShouldQueue
         saveLogMessage($idLog, $message);
         $user->role = $this->inputs['role'];
 
-        if (!empty($this->inputs['password'])) {
+        if (! empty($this->inputs['password'])) {
             $user->password = bcrypt($this->inputs['password']);
         }
 

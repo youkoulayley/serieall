@@ -101,9 +101,9 @@ return [
 
     'custom'               => [
         'captcha' => [
-            'required' => "Veuillez renseigner le captcha pour pouvoir continuer.",
-            'captcha' => "Erreur de captcha ! Veuillez réessayer. Si le problème persiste, veuillez contacter un administrateur.",
-        ]
+            'required' => 'Veuillez renseigner le captcha pour pouvoir continuer.',
+            'captcha' => 'Erreur de captcha ! Veuillez réessayer. Si le problème persiste, veuillez contacter un administrateur.',
+        ],
     ],
 
     /*

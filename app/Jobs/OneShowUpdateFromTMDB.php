@@ -42,22 +42,23 @@ class OneShowUpdateFromTMDB extends Job implements ShouldQueue
         $showGot = Show::where('tmdb_id', $this->id)->first();
 
         if (is_null($showGot)) {
-            Log::Error("OneShowUpdateFromTMDB: show " .$this->id . " doesn't exists");
+            Log::Error('OneShowUpdateFromTMDB: show '.$this->id." doesn't exists");
+
             return;
         }
 
         // Update show
         $showGot->name = $show->show->name;
         $showGot->name_fr = $show->show->name_fr;
-        $showGot->synopsis =$show->show->synopsis;
-        $showGot->synopsis_fr =$show->show->synopsis_fr;
+        $showGot->synopsis = $show->show->synopsis;
+        $showGot->synopsis_fr = $show->show->synopsis_fr;
         $showGot->diffusion_us = $show->show->diffusion_us;
         $showGot->format = $show->show->format;
         $showGot->encours = $show->show->encours;
         $showGot->annee = $show->show->annee;
 
         $showGot->save();
-        Log::Info("OneShowUpdateFromTMDB: show " .$this->id . " has been updated");
+        Log::Info('OneShowUpdateFromTMDB: show '.$this->id.' has been updated');
 
         // Get images for the show
         downloadImage($show->poster, $showGot->show_url, 'poster');
@@ -65,11 +66,11 @@ class OneShowUpdateFromTMDB extends Job implements ShouldQueue
         resizeImage($showGot->show_url, 'poster');
         resizeImage($showGot->show_url, 'banner');
 
-        Log::Info("OneShowUpdateFromTMDB: show images " .$this->id . " has been updated");
+        Log::Info('OneShowUpdateFromTMDB: show images '.$this->id.' has been updated');
 
         // Updates metadata
         linkAndCreateChannelsToShow($showGot, $show->channels);
-        linkAndCreateArtistsToShow($showGot, $show->creators, "creator");
+        linkAndCreateArtistsToShow($showGot, $show->creators, 'creator');
         linkAndCreateNationalitiesToShow($showGot, $show->nationalities);
         linkAndCreateGenresToShow($showGot, $show->genres);
         linkAndCreateActorsToShow($showGot, $show->actors);
@@ -94,12 +95,12 @@ class OneShowUpdateFromTMDB extends Job implements ShouldQueue
 
                 if (is_null($seasonGot)) {
                     // Create season we don't have it
-                    Log::Info("OneShowUpdateFromTMDB: Season " . $season->season->name . " doesn't exists");
+                    Log::Info('OneShowUpdateFromTMDB: Season '.$season->season->name." doesn't exists");
                     $seasonGot = new Season([
                         'tmdb_id' => $season->season->tmdb_id,
                     ]);
                 } else {
-                    Log::Info("OneShowUpdateFromTMDB: Season " . $season->season->name . " exists but without tmdb_id");
+                    Log::Info('OneShowUpdateFromTMDB: Season '.$season->season->name.' exists but without tmdb_id');
                     $seasonGot->tmdb_id = $season->season->tmdb_id;
                 }
             }
@@ -110,7 +111,7 @@ class OneShowUpdateFromTMDB extends Job implements ShouldQueue
             $seasonGot->show()->associate($show);
             $seasonGot->save();
 
-            Log::Info("OneShowUpdateFromTMDB: Season " . $season->season->name . " updated");
+            Log::Info('OneShowUpdateFromTMDB: Season '.$season->season->name.' updated');
 
             $this->processEpisodes($seasonGot, $season->episodes);
         }
@@ -131,12 +132,12 @@ class OneShowUpdateFromTMDB extends Job implements ShouldQueue
 
                 if (is_null($episodeGot)) {
                     // Create season we don't have it
-                    Log::Info("OneShowUpdateFromTMDB: Episode " . $season->name . '/' . $episode->episode->numero . " doesn't exists");
+                    Log::Info('OneShowUpdateFromTMDB: Episode '.$season->name.'/'.$episode->episode->numero." doesn't exists");
                     $episodeGot = new Episode([
                         'tmdb_id' => $episode->episode->tmdb_id,
                     ]);
                 } else {
-                    Log::Info("OneShowUpdateFromTMDB: Episode " . $season->name . '/' . $episode->episode->numero . " exists but without tmdb_id");
+                    Log::Info('OneShowUpdateFromTMDB: Episode '.$season->name.'/'.$episode->episode->numero.' exists but without tmdb_id');
                     $episodeGot->tmdb_id = $episode->episode->tmdb_id;
                 }
             }
@@ -154,11 +155,11 @@ class OneShowUpdateFromTMDB extends Job implements ShouldQueue
             $episodeGot->season()->associate($season);
             $episodeGot->save();
 
-            Log::Info("OneShowUpdateFromTMDB: Episode " . $season->name . '/' . $episode->episode->numero ." updated");
+            Log::Info('OneShowUpdateFromTMDB: Episode '.$season->name.'/'.$episode->episode->numero.' updated');
 
-            linkAndCreateArtistsToEpisode($episodeGot, $episode->guests, "guest");
-            linkAndCreateArtistsToEpisode($episodeGot, $episode->writers, "writer");
-            linkAndCreateArtistsToEpisode($episodeGot, $episode->directors, "director");
+            linkAndCreateArtistsToEpisode($episodeGot, $episode->guests, 'guest');
+            linkAndCreateArtistsToEpisode($episodeGot, $episode->writers, 'writer');
+            linkAndCreateArtistsToEpisode($episodeGot, $episode->directors, 'director');
         }
     }
 }

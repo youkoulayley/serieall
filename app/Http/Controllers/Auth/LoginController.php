@@ -36,7 +36,9 @@ class LoginController extends Controller
      * @var string
      */
     protected $redirectTo = '/';
+
     protected $activationService;
+
     protected $hashingProvider;
 
     /**
@@ -97,7 +99,7 @@ class LoginController extends Controller
      */
     public function authenticated($user)
     {
-        if (!$user->activated) {
+        if (! $user->activated) {
             $this->activationService->sendActivationMail($user);
             auth()->logout();
 

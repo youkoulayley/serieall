@@ -15,8 +15,11 @@ use App\Repositories\ShowRepository;
 class RankingController extends Controller
 {
     protected $showRepository;
+
     protected $seasonRepository;
+
     protected $episodeRepository;
+
     protected $rateRepository;
 
     /**

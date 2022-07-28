@@ -12,8 +12,11 @@ use App\Models\Episode;
 class TMDBEpisode
 {
     public Episode $episode;
+
     public array $guests;
+
     public array $writers;
+
     public array $directors;
 
     public function __construct(

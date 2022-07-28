@@ -10,7 +10,9 @@ namespace App\Packages\TMDB;
 class TMDBArtist
 {
     public string $name;
+
     public string $role;
+
     public string $image;
 
     public function __construct(

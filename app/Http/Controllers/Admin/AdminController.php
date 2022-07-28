@@ -13,6 +13,7 @@ use App\Repositories\LogRepository;
 class AdminController extends Controller
 {
     protected $nbPerPage = 20;
+
     protected $logRepository;
 
     /**

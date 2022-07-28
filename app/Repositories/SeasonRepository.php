@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Interfaces\SeasonRepositoryInterface;
 use App\Models\Season;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
@@ -11,21 +12,15 @@ use Illuminate\Support\Facades\Config;
 /**
  * Class SeasonRepository.
  */
-class SeasonRepository
+class SeasonRepository implements SeasonRepositoryInterface
 {
     public const RANKING_SEASONS_CACHE_KEY = 'RANKING_SEASONS_CACHE_KEY';
 
     /**
-     * @var Season
-     */
-    protected $season;
-
-    /**
      * SeasonRepository constructor.
      */
-    public function __construct(Season $season)
+    public function __construct()
     {
-        $this->season = $season;
     }
 
     /**
@@ -38,7 +33,7 @@ class SeasonRepository
      */
     public function getSeasonsCountEpisodesForShowByID($id)
     {
-        return $this->season::where('show_id', '=', $id)
+        return Season::where('show_id', '=', $id)
             ->withCount('episodes')
             ->with(['comments' => function ($q) {
                 $q->select('thumb', 'commentable_id', 'commentable_type', \DB::raw('count(*) as count_thumb'));
@@ -59,7 +54,7 @@ class SeasonRepository
      */
     public function getSeasonByID($id)
     {
-        return $this->season::findOrFail($id);
+        return Season::findOrFail($id);
     }
 
     /**
@@ -71,7 +66,7 @@ class SeasonRepository
      */
     public function getSeasonShowEpisodesBySeasonID($id)
     {
-        return $this->season::with('show', 'episodes')
+        return Season::with('show', 'episodes')
             ->findOrFail($id);
     }
 
@@ -84,7 +79,7 @@ class SeasonRepository
      */
     public function getSeasonWithShowByID($id)
     {
-        return $this->season::with('show')
+        return Season::with('show')
             ->findOrFail($id);
     }
 
@@ -96,7 +91,7 @@ class SeasonRepository
      */
     public function getSeasonEpisodesBySeasonNameAndShowIDWithCommentCounts($showID, $seasonName)
     {
-        return $this->season::with(['episodes' => function ($q) {
+        return Season::with(['episodes' => function ($q) {
             $q->with(['comments' => function ($q) {
                 $q->select('thumb', 'commentable_id', 'commentable_type', \DB::raw('count(*) as count_thumb'));
                 $q->groupBy('thumb', 'commentable_id', 'commentable_type');
@@ -116,7 +111,7 @@ class SeasonRepository
      */
     public function getSeasonEpisodesBySeasonNameAndShowID($showID, $seasonName)
     {
-        return $this->season::with(['episodes'])
+        return Season::with(['episodes'])
             ->withCount('episodes')
             ->where('seasons.name', '=', $seasonName)
             ->where('seasons.show_id', '=', $showID)
@@ -132,7 +127,7 @@ class SeasonRepository
      */
     public function getRateBySeasonID($id)
     {
-        return $this->season::with(['users' => function ($q) {
+        return Season::with(['users' => function ($q) {
             $q->orderBy('updated_at', 'desc');
             $q->limit(20);
         }, 'users.episode' => function ($q) {
@@ -152,9 +147,8 @@ class SeasonRepository
      */
     public function getRankingSeasons($order)
     {
-        return Cache::remember(SeasonRepository::RANKING_SEASONS_CACHE_KEY.'_'.$order, Config::get('constants.cacheDuration.day'), function () use ($order) {
-            return $this->season
-                ->orderBy('moyenne', $order)
+        return Cache::remember(self::RANKING_SEASONS_CACHE_KEY.'_'.$order, Config::get('constants.cacheDuration.day'), function () use ($order) {
+            return Season::orderBy('moyenne', $order)
                 ->orderBy('nbnotes', $order)
                 ->where('nbnotes', '>', config('param.nombreNotesMiniClassementSeasons'))
                 ->limit(15)

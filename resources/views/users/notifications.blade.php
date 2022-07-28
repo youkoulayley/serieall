@@ -1,34 +1,34 @@
 @extends('layouts.app')
 
-@section('pageTitle', 'Profil de ' . $user->username)
+@section('pageTitle', 'Profil de ' . $data["user"]->username)
 
 @section('content')
     <div class="ui ten wide column">
         <div class="ui center aligned">
             <div class="ui stackable compact pointing menu">
-                <a class="item" href="{{ route('user.profile', $user->user_url ) }}">
+                <a class="item" href="{{ route('user.profile', $data["user"]->user_url ) }}">
                     <i class="user icon"></i>
                     Profil
                 </a>
-                <a class="item" href="{{ route('user.profile.rates', $user->user_url ) }}">
+                <a class="item" href="{{ route('user.profile.rates', $data["user"]->user_url ) }}">
                     <i class="star icon"></i>
                     Notes
                 </a>
-                <a class="item" href="{{ route('user.profile.comments', $user->user_url ) }}">
+                <a class="item" href="{{ route('user.profile.comments', $data["user"]->user_url ) }}">
                     <i class="comment icon"></i>
                     Avis
                 </a>
-                <a class="item" href="{{ route('user.profile.shows', $user->user_url ) }}">
+                <a class="item" href="{{ route('user.profile.shows', $data["user"]->user_url ) }}">
                     <i class="tv icon"></i>
                     Séries
                 </a>
-                <a class="item" href="{{ route('user.profile.ranking', $user->user_url ) }}">
+                <a class="item" href="{{ route('user.profile.ranking', $data["user"]->user_url ) }}">
                     <i class="ordered list icon"></i>
                     Classement
                 </a>
                 @if(Auth::check())
-                    @if($user->username == Auth::user()->username)
-                        <a class="item" href="{{ route('user.profile.planning', $user->user_url ) }}">
+                    @if($data["user"]->username == Auth::user()->username)
+                        <a class="item" href="{{ route('user.profile.planning', $data["user"]->user_url ) }}">
                             <i class="calendar icon"></i>
                             Mon planning
                         </a>
@@ -36,7 +36,7 @@
                             <i class="alarm icon"></i>
                             Notifications
                         </a>
-                        <a class="item" href="{{ route('user.profile.parameters', $user->user_url ) }}">
+                        <a class="item" href="{{ route('user.profile.parameters', $data["user"]->user_url ) }}">
                             <i class="settings icon"></i>
                             Paramètres
                         </a>
@@ -52,13 +52,13 @@
                         <div class="ui items">
                             <div class="item">
                         <span class="ui tiny image">
-                            <img src="{{ Gravatar::src($user->email) }}" alt="Avatar de {{$user->username}}">
+                            <img src="{{ Gravatar::src($data["user"]->email) }}" alt="Avatar de {{$data["user"]->username}}">
                         </span>
                                 <div class="content">
-                                    <a class="header">{{ $user->username }}</a><br />
-                                    {!! roleUser($user->role) !!}
+                                    <a class="header">{{ $data["user"]->username }}</a><br />
+                                    {!! roleUser($data["user"]->role) !!}
                                     <div class="description">
-                                        <p>"<i>{{ $user->edito }}"</i></p>
+                                        <p>"<i>{{ $data["user"]->edito }}"</i></p>
                                     </div>
                                 </div>
                             </div>
@@ -66,7 +66,7 @@
                         <div class="ui statistic">
                             <div class="label">
                                 <i class="tv icon"></i>
-                                {{ $time_passed_shows }} devant l'écran
+                                {{ $data["watchTime"] }} devant l'écran
                             </div>
                         </div>
                     </div>
@@ -77,7 +77,7 @@
                                     Moyenne
                                 </div>
                                 <div class="value">
-                                    {!! affichageNote($avg_user_rates->avg) !!}
+                                    {!! affichageNote($data["ratesSummary"]["avgRate"]) !!}
                                 </div>
                             </div>
                             <div class="ui statistic">
@@ -85,7 +85,7 @@
                                     Nombre de notes
                                 </div>
                                 <div class="value">
-                                    {{$avg_user_rates->nb_rates}}
+                                    {{$data["ratesSummary"]["ratesCount"]}}
                                 </div>
                             </div>
                             <div class="ui statistic">
@@ -93,7 +93,7 @@
                                     Nombre d'avis
                                 </div>
                                 <div class="value">
-                                    {{$nb_comments}}
+                                    {{$data["commentsSummary"]["count"]}}
                                 </div>
                             </div>
                         </div>
@@ -102,11 +102,7 @@
                             <div class="statistic">
                                 <div class="value">
                                     <i class="green smile icon"></i>
-                                    @if($comment_fav)
-                                        {{ $comment_fav->total }}
-                                    @else
-                                        0
-                                    @endif
+                                    {{$data["commentsSummary"]["positiveCount"]}}
                                 </div>
                                 <div class="label">
                                     Favorables
@@ -115,11 +111,7 @@
                             <div class="statistic">
                                 <div class="value">
                                     <i class="grey meh icon"></i>
-                                    @if($comment_neu)
-                                        {{ $comment_neu->total }}
-                                    @else
-                                        0
-                                    @endif
+                                    {{$data["commentsSummary"]["neutralCount"]}}
                                 </div>
                                 <div class="label">
                                     Neutres
@@ -128,11 +120,7 @@
                             <div class="statistic">
                                 <div class="value">
                                     <i class="red frown icon"></i>
-                                    @if($comment_def)
-                                        {{ $comment_def->total }}
-                                    @else
-                                        0
-                                    @endif
+                                    {{$data["commentsSummary"]["negativeCount"]}}
                                 </div>
                                 <div class="label">
                                     Défavorables
@@ -143,24 +131,24 @@
                 </div>
             </div>
 
-            @if(!empty($user->facebook) || !empty($user->twitter) || !empty($user->website))
+            @if(!empty($data["user"]->facebook) || !empty($data["user"]->twitter) || !empty($data["user"]->website))
                 <h3>Ses liens :</h3>
-                @if(!empty($user->facebook))
-                    <button class="ui facebook button" onclick="window.location.href='https://www.facebook.com/{{ $user->facebook }}'">
+                @if(!empty($data["user"]->facebook))
+                    <button class="ui facebook button" onclick="window.location.href='https://www.facebook.com/{{ $data["user"]->facebook }}'">
                         <i class="facebook icon"></i>
                         Facebook
                     </button>
                 @endif
 
-                @if(!empty($user->twitter))
-                    <button class="ui twitter button" onclick="window.location.href='https://www.twitter.com/{{ $user->twitter }}'">
+                @if(!empty($data["user"]->twitter))
+                    <button class="ui twitter button" onclick="window.location.href='https://www.twitter.com/{{ $data["user"]->twitter }}'">
                         <i class="twitter icon"></i>
                         Twitter
                     </button>
                 @endif
 
-                @if(!empty($user->website))
-                    <button class="ui grey button" onclick="window.location.href='{{ $user->website }}'">
+                @if(!empty($data["user"]->website))
+                    <button class="ui grey button" onclick="window.location.href='{{ $data["user"]->website }}'">
                         <i class="at icon"></i>
                         Site Internet
                     </button>
@@ -178,8 +166,8 @@
             @endif
 
             <div class="ui feed">
-                @if($notifications->count() != 0)
-                    @foreach($notifications as $notif)
+                @if($data["notifications"]->count() != 0)
+                    @foreach($data["notifications"] as $notif)
                         <div class="event">
                         <div class="label">
                             <img src="{{ affichageAvatar($notif->data['user_id']) }}" alt="Avatar de {{ affichageUsername($notif->data['user_id']) }}">
@@ -202,7 +190,7 @@
                     @endforeach
                     <p></p>
                     <div class="d-center">
-                        {{ $notifications->links() }}
+                        {{ $data["notifications"]->links() }}
                     </div>
                 @else
                     <div class="ui placeholder segment">

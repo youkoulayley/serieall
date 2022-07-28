@@ -19,14 +19,14 @@ return [
         ],
         'twitter' => [
             'uri' => 'https://twitter.com/intent/tweet',
-            'text' => ''
+            'text' => '',
         ],
         'gplus' => [
             'uri' => 'https://plus.google.com/share?url=',
         ],
         'linkedin' => [
             'uri' => 'http://www.linkedin.com/shareArticle',
-            'extra' => ['mini' => 'true']
+            'extra' => ['mini' => 'true'],
         ],
     ],
 

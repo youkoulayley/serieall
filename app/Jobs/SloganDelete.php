@@ -20,6 +20,7 @@ class SloganDelete implements ShouldQueue
     use SerializesModels;
 
     protected $sloganID;
+
     protected $userID;
 
     /**

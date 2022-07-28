@@ -30,7 +30,6 @@ class ArtistUpdateRequest extends FormRequest
     {
         return [
             'role' => 'required|max:255',
-            'image' => 'image',
-        ];
+            'image' => 'image', ];
     }
 }

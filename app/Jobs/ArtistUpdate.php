@@ -19,8 +19,11 @@ class ArtistUpdate implements ShouldQueue
     use SerializesModels;
 
     protected $artist;
+
     protected $show_id;
+
     protected $role;
+
     protected $idLog;
 
     /**

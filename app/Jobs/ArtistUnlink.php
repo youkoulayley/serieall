@@ -20,7 +20,9 @@ class ArtistUnlink implements ShouldQueue
     use SerializesModels;
 
     protected $show;
+
     protected $artistID;
+
     protected $userID;
 
     /**

@@ -4,150 +4,103 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Charts\RateSummary;
-use App\Http\Requests\changePasswordRequest;
+use App\Http\Requests\ChangeInfoRequest;
+use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\FollowShowRequest;
 use App\Http\Requests\NotificationRequest;
-use App\Http\Requests\UserChangeInfosRequest;
-use App\Repositories\CommentRepository;
-use App\Repositories\RateRepository;
-use App\Repositories\ShowRepository;
-use App\Repositories\UserRepository;
-use Carbon\Carbon;
-use Carbon\CarbonInterval;
+use App\Interfaces\UserServiceInterface;
+use Exception;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\View as V;
+use Illuminate\View\View;
 use MaddHatter\LaravelFullcalendar\Facades\Calendar;
-use Response;
-use View;
 
 /**
  * Class UserController.
  */
 class UserController extends Controller
 {
-    protected $userRepository;
-    protected $rateRepository;
-    protected $commentRepository;
-    protected $showRepository;
+    private $userRepositoryInterface;
+
+    private $rateRepositoryInterface;
+
+    private $commentRepositoryInterface;
+
+    private $showRepositoryInterface;
+
+    private UserServiceInterface $userService;
 
     /**
      * UserController constructor.
      */
     public function __construct(
-        UserRepository $userRepository,
-        RateRepository $rateRepository,
-        CommentRepository $commentRepository,
-        ShowRepository $showRepository
+        UserServiceInterface $userService,
+        $userRepositoryInterface = null,
+        $rateRepositoryInterface = null,
+        $commentRepositoryInterface = null,
+        $showRepositoryInterface = null
     ) {
-        $this->userRepository = $userRepository;
-        $this->rateRepository = $rateRepository;
-        $this->commentRepository = $commentRepository;
-        $this->showRepository = $showRepository;
+        $this->userService = $userService;
+        $this->userRepositoryInterface = $userRepositoryInterface;
+        $this->rateRepositoryInterface = $rateRepositoryInterface;
+        $this->commentRepositoryInterface = $commentRepositoryInterface;
+        $this->showRepositoryInterface = $showRepositoryInterface;
     }
 
     /**
-     * Renvoi vers la page users/index.
+     * Get user index.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return View
      */
-    public function index()
+    public function index(): View
     {
-        $users = $this->userRepository->list();
+        $users = $this->userService->list();
 
         return view('users.index', compact('users'));
     }
 
     /**
-     * Renvoi vers la page users/profile.
+     * Get users/profile page.
      *
-     * @param $userURL
+     * @param string $userURL
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     *
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * @return View
      */
-    public function getProfile($userURL)
+    public function getProfile(string $userURL): View
     {
-        $user = $this->userRepository->getByURL($userURL);
+        $data = $this->userService->getProfile($userURL);
 
-        $all_rates = $this->rateRepository->getAllRateByUserID($user->id);
-        $avg_user_rates = $all_rates->select(DB::raw('trim(round(avg(rate),2))+0 avg, count(*) nb_rates'))->first();
-
-        $comments = $this->commentRepository->getCommentByUserIDThumbNotNull($user->id);
-        $nb_comments = $this->commentRepository->countCommentByUserIDThumbNotNull($user->id);
-        $comment_fav = $comments->where('thumb', '=', 1)->first();
-        $comment_neu = $comments->where('thumb', '=', 2)->first();
-        $comment_def = $comments->where('thumb', '=', 3)->first();
-        $time_passed_shows = getTimePassedOnShow($this->rateRepository, $user->id);
-
-        $rates = $this->rateRepository->getRateByUserID($user->id);
-
-        return view('users.profile', compact('user', 'rates', 'avg_user_rates', 'comment_fav', 'comment_def', 'comment_neu', 'nb_comments', 'time_passed_shows'));
+        return view('users.profile', compact('data'));
     }
 
     /**
-     * Renvoi vers la page users/rates.
+     * Get users/rates page.
      *
-     * @param $userURL
-     * @param $action
+     * @param string $userURL
+     * @param string $sort
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\JsonResponse|\Illuminate\View\View|Response
+     * @return View|JsonResponse
      */
-    public function getRates($userURL, $action = '')
+    public function getRates(string $userURL, string $sort = '')
     {
-        $user = $this->userRepository->getByURL($userURL);
-
-        $all_rates = $this->rateRepository->getAllRateByUserID($user->id);
-        $all_rates_chart = $this->rateRepository->getAllRateByUserID($user->id);
-        $avg_user_rates = $all_rates->select(DB::raw('trim(round(avg(rate),2))+0 avg, count(*) nb_rates'))->first();
-        $chart_rates = $all_rates_chart->select('rate', DB::raw('count(*) as total'))->groupBy('rate')->get();
-
-        $comments = $this->commentRepository->getCommentByUserIDThumbNotNull($user->id);
-        $nb_comments = $this->commentRepository->countCommentByUserIDThumbNotNull($user->id);
-        $comment_fav = $comments->where('thumb', '=', 1)->first();
-        $comment_neu = $comments->where('thumb', '=', 2)->first();
-        $comment_def = $comments->where('thumb', '=', 3)->first();
-
         if (Request::ajax()) {
-            if ('avg' == $action) {
-                $rates = $this->rateRepository->getRatesAggregateByShowForUser($user->id, 'avg_rate DESC');
-            } elseif ('nb_rate' == $action) {
-                $rates = $this->rateRepository->getRatesAggregateByShowForUser($user->id, 'nb_rate DESC');
-            } elseif ('time' == $action) {
-                $rates = $this->rateRepository->getRatesAggregateByShowForUser($user->id, 'minutes DESC');
-            } else {
-                $rates = $this->rateRepository->getRatesAggregateByShowForUser($user->id, 'sh.name');
-            }
+            $data = $this->userService->getRatesAjax($userURL, $sort);
 
-            return Response::json(View::make('users.rates_cards', ['rates' => $rates])->render());
-        } else {
-            $nb_minutes = 0;
-            $rates = $this->rateRepository->getRatesAggregateByShowForUser($user->id, 'sh.name');
-            foreach ($rates as $rate) {
-                $nb_minutes = $nb_minutes + $rate->minutes;
-            }
-            Carbon::setLocale('fr');
-            $time_passed_shows = CarbonInterval::fromString($nb_minutes.'m')->cascade()->forHumans();
-
-            $chart = new RateSummary();
-            $chart
-                ->height(300)
-                ->title('Récapitulatif des notes')
-                ->labels($chart_rates->pluck('rate'))
-                ->dataset('Nombre de notes', 'line', $chart_rates->pluck('total'));
-
-            $chart->options([
-                'yAxis' => [
-                    'min' => 0,
-                ],
-            ]);
-
-            return view('users.rates', compact('user', 'rates', 'chart_rates', 'chart', 'avg_user_rates', 'comment_fav', 'comment_def', 'comment_neu', 'nb_comments', 'time_passed_shows'));
+            return response()->json(view('users.rates_cards', compact('data'))->render());
         }
+
+        $data = $this->userService->getRates($userURL);
+
+        return view('users.rates', compact('data'));
     }
 
     /**
@@ -156,225 +109,141 @@ class UserController extends Controller
      * @param string $filter
      * @param string $tri
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\JsonResponse|\Illuminate\View\View
+     * @return Factory|JsonResponse|View
      */
-    public function getComments($userURL, $action = '', $filter = '', $tri = '')
+    public function getComments($userURL, string $action = '', string $filter = '', string $tri = '')
     {
-        $user = $this->userRepository->getByURL($userURL);
-
-        switch ($filter) {
-            case 1:
-                $filter = [1];
-                break;
-            case 2:
-                $filter = [2];
-                break;
-            case 3:
-                $filter = [3];
-                break;
-            default:
-                $filter = [1, 2, 3];
-                break;
-        }
-
-        switch ($tri) {
-            case 1:
-                $tri = 'shows.name';
-                break;
-            case 2:
-                $tri = 'comments.id';
-                break;
-            default:
-                $tri = 'shows.name';
-                break;
-        }
-
         if (Request::ajax()) {
-            if ('show' == $action) {
-                $comments = $this->commentRepository->getCommentsShowForProfile($user->id, 'show', $filter, $tri);
-            } elseif ('season' == $action) {
-                $comments = $this->commentRepository->getCommentsSeasonForProfile($user->id, 'season', $filter, $tri);
-            } elseif ('episode' == $action) {
-                $comments = $this->commentRepository->getCommentsEpisodeForProfile($user->id, 'episode', $filter, $tri);
-            }
+            $data = $this->userService->getCommentsAjax($userURL, $action, $filter, $tri);
 
-            return Response::json(View::make('users.comments_cards', ['comments' => $comments])->render());
-        } else {
-            $all_rates = $this->rateRepository->getAllRateByUserID($user->id);
-            $avg_user_rates = $all_rates->select(DB::raw('trim(round(avg(rate),2))+0 avg, count(*) nb_rates'))->first();
-            $time_passed_shows = getTimePassedOnShow($this->rateRepository, $user->id);
-
-            $comments = $this->commentRepository->getCommentByUserIDThumbNotNull($user->id);
-            $nb_comments = $this->commentRepository->countCommentByUserIDThumbNotNull($user->id);
-            $comment_fav = $comments->where('thumb', '=', 1)->first();
-            $comments_fav = $comment_fav ? $comment_fav->total : 0;
-            $comment_neu = $comments->where('thumb', '=', 2)->first();
-            $comments_neu = $comment_neu ? $comment_neu->total : 0;
-            $comment_def = $comments->where('thumb', '=', 3)->first();
-            $comments_def = $comment_def ? $comment_def->total : 0;
-
-            $comments_shows = $this->commentRepository->getCommentsShowForProfile($user->id, 'show', $filter, $tri);
-            $comments_seasons = $this->commentRepository->getCommentsSeasonForProfile($user->id, 'season', $filter, $tri);
-            $comments_episodes = $this->commentRepository->getCommentsEpisodeForProfile($user->id, 'episode', $filter, $tri);
-
-            $chart = new RateSummary();
-            $chart
-                ->height(300)
-                ->title('Récapitulatif des avis')
-                ->labels(['Favorables', 'Neutres', 'Défavorables'])
-                ->dataset('Avis', 'pie', [$comments_fav, $comments_neu, $comments_def])
-                ->color(['#21BA45', '#767676', '#db2828']);
-
-            return view('users.comments', compact('user', 'time_passed_shows', 'avg_user_rates', 'nb_comments', 'comment_fav', 'comment_neu', 'comment_def', 'chart', 'comments_shows', 'comments_seasons', 'comments_episodes'));
+            return response()->json(view('users.comments_cards', compact('data'))->render());
         }
+
+        $data = $this->userService->getComments($userURL, $filter, $tri);
+
+        return view('users.comments', compact('data'));
     }
 
     /**
-     * Affiche le formulaire de modification des paramètres.
+     * Get users/shows page.
+     *
+     * @param string $userURL
+     * @return View
+     */
+    public function getShows(string $userURL): View
+    {
+        $data = $this->userService->getShows($userURL);
+
+        return view('users.shows', compact('data'));
+    }
+
+    /**
+     * getRanking returns all the ranking for the given user.
+     *
+     * @param string $userURL
+     * @return Factory|View
+     */
+    public function getRanking(string $userURL)
+    {
+        $data = $this->userService->getRanking($userURL);
+
+        return view('users.ranking', compact('data'));
+    }
+
+    /**
+     * getNotifications returns the notifications for the user.
+     *
+     * @param $user_url
+     *
+     * @return Application|Factory|\Illuminate\Contracts\View\View
+     */
+    public function getNotifications($user_url)
+    {
+        $data = $this->userService->getNotifications($user_url);
+
+        return view('users.notifications', compact('data'));
+    }
+
+    /**
+     * getParameters returns the parameters page.
      *
      * @param $userURL
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      *
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * @throws ModelNotFoundException
      */
     public function getParameters($userURL)
     {
-        $user = $this->userRepository->getByURL($userURL);
+        $user = $this->userService->getUserByURL($userURL);
 
         return view('users.parameters', compact('user'));
     }
 
     /**
-     * L'utilisateur change lui-même ses informations personnelles.
+     * changePassword changes the user password.
      */
-    public function changeInfos(UserChangeInfosRequest $request): RedirectResponse
+    public function changePassword(ChangePasswordRequest $request): RedirectResponse
     {
         $user = Auth::user();
-        if (null !== $user) {
-            $user->email = $request->email;
-            $user->antispoiler = $request->antispoiler;
-            $user->twitter = $request->twitter;
-            $user->facebook = $request->facebook;
-            $user->website = $request->website;
-            $user->edito = $request->edito;
 
-            $user->save();
-
-            $state = 'success';
-            $message = 'Vos informations personnelles ont été modifiées !';
-        } else {
-            $state = 'error';
-            $message = 'Vous devez vous connecter pour pouvoir modifier vos informations personnelles.';
+        try {
+            $ok = $this->userService->changePassword($user, $request->password, $request->new_password);
+        } catch (Exception $e) {
+            return back()->with('error', 'Impossible de modifier votre mot de passe. Veuillez réessayer.');
         }
 
-        return redirect()->back()->with($state, $message);
+        if ($ok) {
+            return back()->with('success', 'Votre mot de passe a bien été modifié !');
+        }
+
+        return back()->with('warning', 'Votre mot de passe actuel ne correspond pas à celui saisi.');
     }
 
     /**
-     * Changement du mot de passe de l'utilisateur.
+     * changeInfo changes the user information.
+     *
+     * @param ChangeInfoRequest $request
+     * @return RedirectResponse
      */
-    public function changePassword(changePasswordRequest $request): RedirectResponse
+    public function changeInfo(ChangeInfoRequest $request): RedirectResponse
     {
         $user = Auth::user();
-        $password = $request->password;
 
-        if (null !== $user) {
-            if (Hash::check($password, $user->password)) {
-                $user->password = Hash::make($request->new_password);
-                $user->save();
-
-                $state = 'success';
-                $message = 'Votre mot de passe a bien été modifié !';
-            } else {
-                $state = 'warning';
-                $message = 'Votre mot de passe actuel ne correspond pas à celui saisi.';
-            }
-        } else {
-            $state = 'error';
-            $message = 'Vous devez être connecté pour pouvoir changer votre mot de passe.';
+        if (is_null($user)) {
+            return redirect()->back()->with(
+                'error',
+                'Vous devez vous connecter pour pouvoir modifier vos informations personnelles.'
+            );
         }
 
-        return redirect()->back()->with($state, $message);
+        $this->userService->changeInfo($user, $request);
+
+        return redirect()->back()->with(
+            'success',
+            'Vos informations personnelles ont été modifiées !'
+        );
     }
 
-    /**
-     * @param $user_url
-     *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    public function getRanking($user_url)
-    {
-        $user = $this->userRepository->getByURL($user_url);
-
-        $all_rates = $this->rateRepository->getAllRateByUserID($user->id);
-        $avg_user_rates = $all_rates->select(DB::raw('trim(round(avg(rate),2))+0 avg, count(*) nb_rates'))->first();
-        $time_passed_shows = getTimePassedOnShow($this->rateRepository, $user->id);
-
-        $comments = $this->commentRepository->getCommentByUserIDThumbNotNull($user->id);
-        $nb_comments = $this->commentRepository->countCommentByUserIDThumbNotNull($user->id);
-        $comment_fav = $comments->where('thumb', '=', 1)->first();
-        $comment_neu = $comments->where('thumb', '=', 2)->first();
-        $comment_def = $comments->where('thumb', '=', 3)->first();
-
-        $top_shows = $this->rateRepository->getRankingShowsByUsers($user->id, 'DESC');
-        $flop_shows = $this->rateRepository->getRankingShowsByUsers($user->id, 'ASC');
-        $top_seasons = $this->rateRepository->getRankingSeasonsByUsers($user->id, 'DESC');
-        $flop_seasons = $this->rateRepository->getRankingSeasonsByUsers($user->id, 'ASC');
-        $top_episodes = $this->rateRepository->getRankingEpisodesByUsers($user->id, 'DESC');
-        $flop_episodes = $this->rateRepository->getRankingEpisodesByUsers($user->id, 'ASC');
-        $top_pilot = $this->rateRepository->getRankingPilotByUsers($user->id, 'DESC');
-        $flop_pilot = $this->rateRepository->getRankingPilotByUsers($user->id, 'ASC');
-
-        return view('users.ranking', compact('user', 'avg_user_rates', 'time_passed_shows', 'nb_comments', 'comment_fav', 'comment_neu', 'comment_def', 'top_shows', 'flop_shows', 'top_seasons', 'flop_seasons', 'top_episodes', 'flop_episodes', 'top_pilot', 'flop_pilot'));
-    }
-
-    /**
-     * Get Followed Shows.
-     *
-     * @param $user_url
-     *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    public function getShows($user_url)
-    {
-        $user = $this->userRepository->getByURL($user_url);
-
-        $all_rates = $this->rateRepository->getAllRateByUserID($user->id);
-        $avg_user_rates = $all_rates->select(DB::raw('trim(round(avg(rate),2))+0 avg, count(*) nb_rates'))->first();
-        $time_passed_shows = getTimePassedOnShow($this->rateRepository, $user->id);
-
-        $comments = $this->commentRepository->getCommentByUserIDThumbNotNull($user->id);
-        $nb_comments = $this->commentRepository->countCommentByUserIDThumbNotNull($user->id);
-        $comment_fav = $comments->where('thumb', '=', 1)->first();
-        $comment_neu = $comments->where('thumb', '=', 2)->first();
-        $comment_def = $comments->where('thumb', '=', 3)->first();
-
-        $followed_shows = $this->showRepository->getShowFollowedByUser($user->id);
-        $in_progress_shows = $followed_shows->where('state', '=', 1);
-        $on_break_shows = $followed_shows->where('state', '=', 2);
-        $completed_shows = $followed_shows->where('state', '=', 3);
-        $abandoned_shows = $followed_shows->where('state', '=', 4);
-        $to_see_shows = $followed_shows->where('state', '=', 5);
-
-        return view('users.shows', compact('user', 'avg_user_rates', 'time_passed_shows', 'nb_comments', 'comment_fav', 'comment_neu', 'comment_def', 'in_progress_shows', 'on_break_shows', 'completed_shows', 'abandoned_shows', 'to_see_shows'));
-    }
+    //----------------
+    // TODO
+    //----------------
 
     /**
      * Follow Show.
      *
-     * @return \Illuminate\Http\JsonResponse|int
+     * @return JsonResponse|int
      */
     public function followShow(FollowShowRequest $request)
     {
         $inputs = array_merge($request->all(), ['user_id' => $request->user()->id]);
 
         if (Request::ajax()) {
-            $user = $this->userRepository->getByID($inputs['user_id']);
+            $user = $this->userRepositoryInterface->getByID($inputs['user_id']);
 
-            if (!empty($inputs['shows'])) {
+            if (! empty($inputs['shows'])) {
                 $show = explode(',', $inputs['shows']);
-                if (!isset($inputs['message'])) {
+                if (! isset($inputs['message'])) {
                     $message = '';
                 } else {
                     $message = $inputs['message'];
@@ -390,30 +259,30 @@ class UserController extends Controller
             }
 
             if (1 == $inputs['state']) {
-                $followed_shows = $this->showRepository->getShowFollowedByUser($user->id);
+                $followed_shows = $this->showRepositoryInterface->getShowFollowedByUser($user->id);
                 $in_progress_shows = $followed_shows->where('state', '=', 1);
 
-                return Response::json(View::make('users.shows_cards', ['shows' => $in_progress_shows, 'user' => $user])->render());
+                return Response::json(V::make('users.shows_cards', ['shows' => $in_progress_shows, 'user' => $user])->render());
             } elseif (2 == $inputs['state']) {
-                $followed_shows = $this->showRepository->getShowFollowedByUser($user->id);
+                $followed_shows = $this->showRepositoryInterface->getShowFollowedByUser($user->id);
                 $on_break_shows = $followed_shows->where('state', '=', 2);
 
-                return Response::json(View::make('users.shows_cards', ['shows' => $on_break_shows, 'user' => $user])->render());
+                return Response::json(V::make('users.shows_cards', ['shows' => $on_break_shows, 'user' => $user])->render());
             } elseif (3 == $inputs['state']) {
-                $followed_shows = $this->showRepository->getShowFollowedByUser($user->id);
+                $followed_shows = $this->showRepositoryInterface->getShowFollowedByUser($user->id);
                 $completed_shows = $followed_shows->where('state', '=', 3);
 
-                return Response::json(View::make('users.shows_cards', ['shows' => $completed_shows, 'user' => $user])->render());
+                return Response::json(V::make('users.shows_cards', ['shows' => $completed_shows, 'user' => $user])->render());
             } elseif (4 == $inputs['state']) {
-                $followed_shows = $this->showRepository->getShowFollowedByUser($user->id);
+                $followed_shows = $this->showRepositoryInterface->getShowFollowedByUser($user->id);
                 $abandoned_shows = $followed_shows->where('state', '=', 4);
 
-                return Response::json(View::make('users.shows_abandoned_cards', ['shows' => $abandoned_shows, 'user' => $user])->render());
+                return Response::json(V::make('users.shows_abandoned_cards', ['shows' => $abandoned_shows, 'user' => $user])->render());
             } elseif (5 == $inputs['state']) {
-                $followed_shows = $this->showRepository->getShowFollowedByUser($user->id);
+                $followed_shows = $this->showRepositoryInterface->getShowFollowedByUser($user->id);
                 $to_see_shows = $followed_shows->where('state', '=', 5);
 
-                return Response::json(View::make('users.shows_cards', ['shows' => $to_see_shows, 'user' => $user])->render());
+                return Response::json(V::make('users.shows_cards', ['shows' => $to_see_shows, 'user' => $user])->render());
             }
         }
 
@@ -423,18 +292,18 @@ class UserController extends Controller
     /**
      * Follow Show.
      *
-     * @return \Illuminate\Http\JsonResponse|int
+     * @return JsonResponse|int
      */
     public function followShowFiche(FollowShowRequest $request)
     {
         $inputs = array_merge($request->all(), ['user_id' => $request->user()->id]);
 
         if (Request::ajax()) {
-            $user = $this->userRepository->getByID($inputs['user_id']);
+            $user = $this->userRepositoryInterface->getByID($inputs['user_id']);
 
-            if (!empty($inputs['shows'])) {
+            if (! empty($inputs['shows'])) {
                 $show = explode(',', $inputs['shows']);
-                if (!isset($inputs['message'])) {
+                if (! isset($inputs['message'])) {
                     $message = '';
                 } else {
                     $message = $inputs['message'];
@@ -447,9 +316,9 @@ class UserController extends Controller
                 }
 
                 $user->shows()->attach($show, ['state' => $inputs['state'], 'message' => $message]);
-                $show = $this->showRepository->getShowByID($inputs['shows']);
+                $show = $this->showRepositoryInterface->getShowByID($inputs['shows']);
 
-                return Response::json(View::make('shows.actions_show', ['state_show' => $inputs['state'], 'show_id' => $inputs['shows'], 'completed_show' => $show->encours])->render());
+                return Response::json(V::make('shows.actions_show', ['state_show' => $inputs['state'], 'show_id' => $inputs['shows'], 'completed_show' => $show->encours])->render());
             }
         }
 
@@ -461,7 +330,7 @@ class UserController extends Controller
      *
      * @param $show
      *
-     * @return \Illuminate\Http\JsonResponse|int
+     * @return JsonResponse|int
      */
     public function unfollowShow($show)
     {
@@ -483,24 +352,24 @@ class UserController extends Controller
      *
      * @param $user_url
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function getPlanning($user_url)
     {
-        $user = $this->userRepository->getByURL($user_url);
+        $user = $this->userRepositoryInterface->getByURLWithPublishedArticles($user_url);
 
-        $all_rates = $this->rateRepository->getAllRateByUserID($user->id);
+        $all_rates = $this->rateRepositoryInterface->getAllRateByUserID($user->id);
         $avg_user_rates = $all_rates->select(DB::raw('trim(round(avg(rate),2))+0 avg, count(*) nb_rates'))->first();
-        $time_passed_shows = getTimePassedOnShow($this->rateRepository, $user->id);
+        $time_passed_shows = getTimePassedOnShow($this->rateRepositoryInterface, $user->id);
 
-        $comments = $this->commentRepository->getCommentByUserIDThumbNotNull($user->id);
-        $nb_comments = $this->commentRepository->countCommentByUserIDThumbNotNull($user->id);
+        $comments = $this->commentRepositoryInterface->getCommentByUserIDThumbNotNull($user->id);
+        $nb_comments = $this->commentRepositoryInterface->countCommentByUserIDThumbNotNull($user->id);
         $comment_fav = $comments->where('thumb', '=', 1)->first();
         $comment_neu = $comments->where('thumb', '=', 2)->first();
         $comment_def = $comments->where('thumb', '=', 3)->first();
 
-        $episodes_in_progress = $this->userRepository->getEpisodePlanning($user->id, 1);
-        $episodes_on_break = $this->userRepository->getEpisodePlanning($user->id, 2);
+        $episodes_in_progress = $this->userRepositoryInterface->getEpisodePlanning($user->id, 1);
+        $episodes_on_break = $this->userRepositoryInterface->getEpisodePlanning($user->id, 2);
 
         $events = [];
 
@@ -549,7 +418,7 @@ class UserController extends Controller
     }
 
     /**
-     * @return \Illuminate\Http\JsonResponse|int
+     * @return JsonResponse|int
      */
     public function markNotification(NotificationRequest $notificationRequest)
     {
@@ -565,18 +434,19 @@ class UserController extends Controller
                 }
             }
 
-            return Response::json('OK');
+            return Response::json('test');
         }
 
-        return 404;
+        return Response::json('Not Ajax');
     }
 
     /**
-     * @return \Illuminate\Http\JsonResponse|int
+     * @return JsonResponse|int
      */
     public function markNotifications()
     {
         if (Request::ajax()) {
+            Log::Info('pouet');
             $user = Auth::user();
 
             $user->unreadNotifications->markAsRead();
@@ -585,24 +455,5 @@ class UserController extends Controller
         }
 
         return 404;
-    }
-
-    public function getNotifications($user_url)
-    {
-        $user = $this->userRepository->getByURL($user_url);
-
-        $all_rates = $this->rateRepository->getAllRateByUserID($user->id);
-        $avg_user_rates = $all_rates->select(DB::raw('trim(round(avg(rate),2))+0 avg, count(*) nb_rates'))->first();
-        $time_passed_shows = getTimePassedOnShow($this->rateRepository, $user->id);
-
-        $comments = $this->commentRepository->getCommentByUserIDThumbNotNull($user->id);
-        $nb_comments = $this->commentRepository->countCommentByUserIDThumbNotNull($user->id);
-        $comment_fav = $comments->where('thumb', '=', 1)->first();
-        $comment_neu = $comments->where('thumb', '=', 2)->first();
-        $comment_def = $comments->where('thumb', '=', 3)->first();
-
-        $notifications = $user->notifications()->paginate(30);
-
-        return view('users.notifications', compact('user', 'avg_user_rates', 'time_passed_shows', 'nb_comments', 'comment_fav', 'comment_neu', 'comment_def', 'notifications'));
     }
 }

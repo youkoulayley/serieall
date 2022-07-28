@@ -26,7 +26,9 @@ use Illuminate\Support\Facades\View;
 class AdminUserController extends Controller
 {
     protected UserRepository $userRepository;
+
     protected CommentRepository $commentRepository;
+
     protected ShowRepository $showRepository;
 
     /**

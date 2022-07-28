@@ -27,10 +27,15 @@ use Illuminate\Support\Facades\View;
 class CommentController extends Controller
 {
     protected $commentRepository;
+
     protected $showRepository;
+
     protected $seasonRepository;
+
     protected $episodeRepository;
+
     protected $rateRepository;
+
     protected $articleRepository;
 
     /**
@@ -315,7 +320,7 @@ class CommentController extends Controller
                     break;
             }
 
-            if (!in_array($get_notif->id, $notified_users)) {
+            if (! in_array($get_notif->id, $notified_users)) {
                 $get_notif->notify(new DatabaseNotification($text_notif, $route_object, $user_id));
                 $notified_users[] = $get_notif->id;
             }
@@ -343,7 +348,7 @@ class CommentController extends Controller
                         break;
                 }
 
-                if (!in_array($get_notif->id, $notified_users)) {
+                if (! in_array($get_notif->id, $notified_users)) {
                     $get_notif->notify(new DatabaseNotification($text_notif, $route_object, $user_id));
                     $notified_users[] = $get_notif->id;
                 }

@@ -14,6 +14,7 @@ use App\Repositories\LogRepository;
 class AdminLogsController extends Controller
 {
     protected $nbPerPage = 20;
+
     protected $logRepository;
 
     /**

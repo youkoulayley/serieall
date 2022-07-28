@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Article;
-use App\Models\Show;
 use App\Repositories\ArticleRepository;
 use App\Repositories\CategoryRepository;
 use App\Repositories\CommentRepository;
@@ -20,9 +19,11 @@ use Youkoulayley\PodcastFeed\Facades\PodcastFeed;
  */
 class ArticleController extends Controller
 {
-    protected $articleRepository;
-    protected $categoryRepository;
-    protected $commentRepository;
+    protected ArticleRepository $articleRepository;
+
+    protected CategoryRepository $categoryRepository;
+
+    protected CommentRepository $commentRepository;
 
     /**
      * ArticleController constructor.
@@ -67,7 +68,7 @@ class ArticleController extends Controller
         $categories = $this->categoryRepository->getAllCategories();
         $categoryInDB = $this->categoryRepository->getCategoryByName($categoryName);
 
-        if (!is_null($categoryInDB)) {
+        if (! is_null($categoryInDB)) {
             $articles = $this->articleRepository->getPublishedArticlesByCategoriesWithAutorsCommentsAndCategory($categoryInDB->id);
 
             $articles_count = count($articles);

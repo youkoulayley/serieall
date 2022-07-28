@@ -17,6 +17,7 @@ use Youkoulayley\ApiHandler\Facades\ApiHandler;
 class SeasonsListController extends Controller
 {
     use Helpers;
+
     protected $seasons;
 
     /**

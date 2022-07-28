@@ -49,7 +49,7 @@ class ShowUpdateFromTVDB extends Job implements ShouldQueue
             Log::error('ShowUpdateFromTVDB: Impossible to get list of updates.');
         }
 
-        if (!empty($listUpdate)) {
+        if (! empty($listUpdate)) {
             $listUpdate = $listUpdate->data;
 
             foreach ($listUpdate as $show) {
@@ -65,7 +65,7 @@ class ShowUpdateFromTVDB extends Job implements ShouldQueue
 
                 // Update the show if it exists on our BDD
                 $showBdd = Show::where('thetvdb_id', $inputs['thetvdb_id'])->first();
-                if (!is_null($showBdd)) {
+                if (! is_null($showBdd)) {
                     createorUpdateShow($inputs);
                 }
             }

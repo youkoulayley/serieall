@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Notification;
 class AdminContactsController extends Controller
 {
     protected $nbPerPage = 20;
+
     protected $contactRepository;
 
     /**

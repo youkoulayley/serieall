@@ -20,6 +20,7 @@ use Youkoulayley\ApiHandler\Facades\ApiHandler;
 class SeasonsByShowNameController extends Controller
 {
     use Helpers;
+
     protected $season;
 
     /**

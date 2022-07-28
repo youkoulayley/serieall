@@ -117,9 +117,9 @@ class AdminCommentController extends Controller
 
         $comment->message = $inputs['avis'];
 
-        if (!empty($inputs['show'])) {
+        if (! empty($inputs['show'])) {
             // Si episode est renseigné, on lie à l'épisode
-            if (!empty($inputs['episode'])) {
+            if (! empty($inputs['episode'])) {
                 $episode = $this->episodeRepository->getEpisodeByIDWithSeasonIDAndShowID($inputs['episode']);
 
                 $episode->comments()->save($comment);
@@ -135,7 +135,7 @@ class AdminCommentController extends Controller
                 $season->comments()->save($comment);
             }
         }
-        if (!empty($inputs['article'])) {
+        if (! empty($inputs['article'])) {
             $article = $this->articleRepository->getArticleByID($inputs['article']);
 
             $article->comments()->save($comment);

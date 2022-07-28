@@ -136,7 +136,7 @@ class ShowAddManually implements ShouldQueue
 
         $genres = $this->inputs['genres'];
 
-        if (!empty($genres)) {
+        if (! empty($genres)) {
             $logMessage = '>>GENRES';
             saveLogMessage($idLog, $logMessage);
 
@@ -179,7 +179,7 @@ class ShowAddManually implements ShouldQueue
 
         $channels = $this->inputs['channels'];
 
-        if (!empty($channels)) {
+        if (! empty($channels)) {
             $logMessage = '>>CHAINES';
             saveLogMessage($idLog, $logMessage);
 
@@ -223,7 +223,7 @@ class ShowAddManually implements ShouldQueue
 
         $nationalities = $this->inputs['nationalities'];
 
-        if (!empty($nationalities)) {
+        if (! empty($nationalities)) {
             $logMessage = '>>NATIONALITES';
             saveLogMessage($idLog, $logMessage);
 
@@ -267,7 +267,7 @@ class ShowAddManually implements ShouldQueue
 
         $creators = $this->inputs['creators'];
 
-        if (!empty($creators)) {
+        if (! empty($creators)) {
             $logMessage = '>>CREATEURS';
             saveLogMessage($idLog, $logMessage);
 
@@ -432,7 +432,7 @@ class ShowAddManually implements ShouldQueue
                         | Ajout des informations sur les réalisateurs de l'épisode
                         |--------------------------------------------------------------------------
                         */
-                        if (!empty($episode['directors'])) {
+                        if (! empty($episode['directors'])) {
                             $directors = $episode['directors'];
                             $directors = explode(',', $directors);
                             $logMessage = '>>>>REALISATEURS';
@@ -473,7 +473,7 @@ class ShowAddManually implements ShouldQueue
                         | Ajout des informations sur les scénaristes de l'épisode
                         |--------------------------------------------------------------------------
                         */
-                        if (!empty($episode['writers'])) {
+                        if (! empty($episode['writers'])) {
                             $writers = $episode['writers'];
                             $writers = explode(',', $writers);
                             $logMessage = '>>>>SCENARISTES';
@@ -514,7 +514,7 @@ class ShowAddManually implements ShouldQueue
                         | Ajout des informations sur les guests de l'épisode
                         |--------------------------------------------------------------------------
                         */
-                        if (!empty($episode['guests'])) {
+                        if (! empty($episode['guests'])) {
                             $guests = $episode['guests'];
                             $guests = explode(',', $guests);
                             $logMessage = '>>>>GUESTS';
@@ -607,7 +607,7 @@ class ShowAddManually implements ShouldQueue
                         | Ajout des informations sur les réalisateurs de l'épisode
                         |--------------------------------------------------------------------------
                         */
-                        if (!empty($episode['directors'])) {
+                        if (! empty($episode['directors'])) {
                             $directors = $episode['directors'];
                             $directors = explode(',', $directors);
                             $logMessage = '>>>>REALISATEURS';
@@ -648,7 +648,7 @@ class ShowAddManually implements ShouldQueue
                         | Ajout des informations sur les scénaristes de l'épisode
                         |--------------------------------------------------------------------------
                         */
-                        if (!empty($episode['writers'])) {
+                        if (! empty($episode['writers'])) {
                             $writers = $episode['writers'];
                             $writers = explode(',', $writers);
                             $logMessage = '>>>>SCENARISTES';
@@ -689,7 +689,7 @@ class ShowAddManually implements ShouldQueue
                         | Ajout des informations sur les guests de l'épisode
                         |--------------------------------------------------------------------------
                         */
-                        if (!empty($episode['guests'])) {
+                        if (! empty($episode['guests'])) {
                             $guests = $episode['guests'];
                             $guests = explode(',', $guests);
                             $logMessage = '>>>>GUESTS';

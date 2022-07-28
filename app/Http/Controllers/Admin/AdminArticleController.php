@@ -30,10 +30,15 @@ use Illuminate\Support\Str;
 class AdminArticleController extends Controller
 {
     protected $articleRepository;
+
     protected $userRepository;
+
     protected $episodeRepository;
+
     protected $seasonRepository;
+
     protected $showRepository;
+
     protected $categoryRepository;
 
     /**
@@ -151,7 +156,7 @@ class AdminArticleController extends Controller
             $article->podcast = 0;
         }
 
-        if (1 == $inputs['one'] && !empty($inputs['show'])) {
+        if (1 == $inputs['one'] && ! empty($inputs['show'])) {
             // We fetch the show and initiate image
             $show = $this->showRepository->getShowByID($inputs['show']);
             $article->image = config('directories.original').$show->show_url.'.jpg';
@@ -188,7 +193,7 @@ class AdminArticleController extends Controller
         // Si le champ one est à 1 c'est qu'on lie qu'une seule série
         if (1 == $inputs['one']) {
             // Si episode est renseigné, on lie à l'épisode
-            if (!empty($inputs['episode'])) {
+            if (! empty($inputs['episode'])) {
                 $episode = $this->episodeRepository->getEpisodeByIDWithSeasonIDAndShowID($inputs['episode']);
 
                 $article->episodes()->attach($episode->id);
@@ -200,7 +205,7 @@ class AdminArticleController extends Controller
                 $article->shows()->attach($inputs['show']);
             }
             // Sinon, on lie à la série
-            elseif (!empty($inputs['show'])) {
+            elseif (! empty($inputs['show'])) {
                 $season = $this->seasonRepository->getSeasonWithShowByID($inputs['season']);
                 $article->seasons()->attach($season->id);
                 $article->shows()->attach($season->show->id);
@@ -288,7 +293,7 @@ class AdminArticleController extends Controller
             $article->podcast = 0;
         }
 
-        if (1 == $inputs['one'] && !empty($inputs['show'])) {
+        if (1 == $inputs['one'] && ! empty($inputs['show'])) {
             // We fetch the show and initiate image
             $show = $this->showRepository->getByName($inputs['show']);
             $article->image = config('directories.shows').$show->show_url.'.jpg';
@@ -326,7 +331,7 @@ class AdminArticleController extends Controller
         // Si le champ one est à 1 c'est qu'on lie qu'une seule série
         if (1 == $inputs['one']) {
             // Si episode est renseigné, on lie à l'épisode
-            if (!empty($inputs['episode'])) {
+            if (! empty($inputs['episode'])) {
                 $episode = $this->episodeRepository->getEpisodeByIDWithSeasonIDAndShowID($inputs['episode']);
 
                 $article->episodes()->sync($episode->id);
@@ -338,7 +343,7 @@ class AdminArticleController extends Controller
                 $article->shows()->sync($inputs['show']);
             }
             // Sinon, on lie à la série
-            elseif (!empty($inputs['show'])) {
+            elseif (! empty($inputs['show'])) {
                 $season = $this->seasonRepository->getSeasonWithShowByID($inputs['season']);
                 $article->seasons()->attach($season->id);
                 $article->shows()->attach($season->show->id);

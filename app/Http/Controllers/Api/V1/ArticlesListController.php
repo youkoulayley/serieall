@@ -17,7 +17,9 @@ use Illuminate\Support\Facades\Request;
 class ArticlesListController extends Controller
 {
     use Helpers;
+
     protected $shows;
+
     /**
      * @var Article
      */

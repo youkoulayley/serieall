@@ -21,9 +21,13 @@ use Illuminate\Support\Facades\View;
 class HomeController extends Controller
 {
     protected $rateRepository;
+
     protected $commentRepository;
+
     protected $articleRepository;
+
     protected $episodeRepository;
+
     protected $showRepository;
 
     /**
